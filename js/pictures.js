@@ -1,114 +1,179 @@
 'use strict';
-var testComments = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.', 'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
+var testComments = [
+  'Всё отлично!',
+  'В целом всё неплохо. Но не всё.',
+  'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
+  'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
+  'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
+  'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
+];
 
-var testDescriptions = ['Тестим новую камеру!', 'Затусили с друзьями на море', 'Как же круто тут кормят', 'Отдыхаем...', 'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......', 'Вот это тачка!'];
+var testDescriptions = [
+  'Тестим новую камеру!',
+  'Затусили с друзьями на море',
+  'Как же круто тут кормят',
+  'Отдыхаем...',
+  'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......',
+  'Вот это тачка!'
+];
 
-/* Функция для случайного числа в промежутке min, max - минимальное и максимальное число в промежутке */
+/**
+ * Функция для генерации случайного числа в промежутке min, max.
+ * @param {number} min минимальное значение числа.
+ * @param {number} max максимальное значение числа.
+ * @return {number} случайное число.
+ */
 var getRandomArbitrary = function (min, max) {
-  var a = Math.random() * (max - min) + min;
-  return Math.round(a);
+  return Math.round(Math.random() * (max - min) + min);
 };
 
-// пустой массив объектов
+/**
+ * Пустой массив объектов.
+ * @type {Array}
+ */
 var objectsList = [];
 
-// функция создает объект и пушит его в массив objectsList.
-var createObject = function (i) {
+/**
+ * Функция создает объект и пушит его в массив arrayToInsert.
+ * @param {number} arrayElementNumber номер элемента в массиве.
+ * @param {array} arrayToInsert массив для вставки оьъекта.
+ * @param {array} descriptionArray массив с описаниями для фото
+ */
+var createObject = function (arrayElementNumber, arrayToInsert, descriptionArray) {
   var newObject = {
-    url: 'photos/' + i + '.jpg',
+    url: 'photos/' + arrayElementNumber + '.jpg',
     likes: getRandomArbitrary(15, 200),
-    comments: randomComments(testComments),
-    description: testDescriptions[getRandomArbitrary(1, 6) - 1]
+    comments: randomComments(testComments, getRandomArbitrary(1, 2)),
+    description: descriptionArray[getRandomArbitrary(1, 6) - 1]
   };
-  objectsList.push(newObject);
+  arrayToInsert.push(newObject);
 };
 
-// функция для создания нескольких объектов. totalObjects - количество генерируемых объектов
-var createArray = function (totalObjects) {
-  var i = 1;
-  while (i <= totalObjects) {
-    createObject(i);
-    i++;
+/**
+ * Функция для создания массива объектов.
+ * @param totalObjects всего объектов в массиве.
+ * @param arrayToInsert массив для вставки объектов.
+ */
+
+var createArray = function (totalObjects, arrayToInsert, descriptionArray) {
+  for (var i = 1; i <= totalObjects; i++) {
+    createObject(i, arrayToInsert, descriptionArray);
   }
 };
 
-// функция для создания рандомного количества комментариев, commentsArray - указание на массив с комментариями
-
-var randomComments = function (commentsArray) {
-  var asd = getRandomArbitrary(1, 2);
-  var i = 0;
+var randomComments = function (commentsArray, commentsNumber) {
   var commentsTotal = [];
-  while (i < asd) {
+  for (var i = 0; i < commentsNumber; i++) {
     commentsTotal.push(commentsArray[getRandomArbitrary(1, 6) - 1]);
-    i++;
   }
   return commentsTotal;
 };
 
-// нахожу template #picture
+/**
+ * Нахожу template #picture.
+ * @type {Element}
+ */
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
-// функция для генерации dom-объекта и записи в него данных из массива objectsList, userArray - массив из которого берется информация
-var renderPicture = function (userArray) {
-  var pictureItem = pictureTemplate.cloneNode(true);
-  pictureItem.querySelector('.picture__img').src = userArray.url;
-  pictureItem.querySelector('.picture__likes').textContent = userArray.likes;
-  pictureItem.querySelector('.picture__comments').textContent = userArray.comments.length;
+/**
+ * Функция для генерации dom-объекта и записи в него данных из массива objectsList.
+ * @param {number} arrayElement элемент массива из которого берется информация.
+ * @param {object} templateElement темплейт для копирования.
+ * @return {Node} элемент списка с заполненной разметкой.
+ */
+var renderPicture = function (arrayElement, templateElement) {
+  var pictureItem = templateElement.cloneNode(true);
+  pictureItem.querySelector('.picture__img').src = arrayElement.url;
+  pictureItem.querySelector('.picture__likes').textContent = arrayElement.likes;
+  pictureItem.querySelector('.picture__comments').textContent = arrayElement.comments.length;
   return pictureItem;
 };
 
-// переменная, куда будем вставлять картинки
+/**
+ * Переменная, куда будут вставляться картинки.
+ */
 var picturesList = document.querySelector('.pictures');
 
-// создаем фрагмент
+/**
+ * Создаем фрагмент.
+ */
 var fragment = document.createDocumentFragment();
 
-// функция записывает элементы в фрагмент, userArray - массив из которого берется информация
-var writeElements = function (userArray) {
+/**
+ * Функция записывает элементы в фрагмент.
+ * @param {array} userArray массив из которого берется информация.
+ * @param {object} templateElement темплейт для копирования.
+ */
+var writeElements = function (userArray, templateElement) {
   for (var i = 0; i < userArray.length; i++) {
-    fragment.appendChild(renderPicture(userArray[i]));
+    fragment.appendChild(renderPicture(userArray[i], templateElement));
   }
 };
 
-// рисуем фрагмент в блоке (задать через place куда)
-var drawFragment = function (place) {
-  place.appendChild(fragment);
+/**
+ * Рисуем фрагмент в блоке.
+ * @param {object} place задает куда рисуем.
+ * @param {object} fragmentParameter параметр содержащий фрагмент
+ */
+var drawFragment = function (place, fragmentParameter) {
+  place.appendChild(fragmentParameter);
 };
 
-/* Создаю массив из 25 объектов и рисую его в блоке .picture */
-createArray(25);
-writeElements(objectsList);
-drawFragment(picturesList);
+/**
+ * Создаю массив из 25 объектов и рисую его в блоке .picture.
+ */
+createArray(25, objectsList, testDescriptions);
+writeElements(objectsList, pictureTemplate);
+drawFragment(picturesList, fragment);
+
 document.querySelector('.big-picture').classList.remove('hidden');
 
-// переменная для big-picture
+/**
+ * Переменная для big-picture.
+ */
 var bigPicture = document.querySelector('.big-picture');
 
-// функция для заполнения big-picture, userArray - массив из которого берется информация
-var renderBigPicture = function (userArray) {
-  bigPicture.querySelector('.big-picture__img').querySelector('img').src = userArray.url;
-  bigPicture.querySelector('.likes-count').textContent = userArray.likes;
-  bigPicture.querySelector('.comments-count').textContent = userArray.comments.length;
-  bigPicture.querySelector('.social__caption').textContent = userArray.description;
+/**
+ * Функция для заполнения big-picture.
+ * @param {array} userArray  массив из которого берется информация.
+ * @param {object} placeToRender место для вставки даных
+ */
+var renderBigPicture = function (userArray, placeToRender) {
+  placeToRender.querySelector('.big-picture__img').querySelector('img').src = userArray.url;
+  placeToRender.querySelector('.likes-count').textContent = userArray.likes;
+  placeToRender.querySelector('.comments-count').textContent = userArray.comments.length;
+  placeToRender.querySelector('.social__caption').textContent = userArray.description;
 };
 
-renderBigPicture(objectsList[0]);
+renderBigPicture(objectsList[0], bigPicture);
+/**
+ * Нахожу template #comment.
+ */
+var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 
+/**
+ * Переменная, куда будем вставлять разметку.
+ */
 var commentsList = bigPicture.querySelector('.social__comments');
 
-// функция генерирует разметку для комментов во фрагмент, вставляет текст комментов объектов массива и записывает куда надо
-// userArray - массив из которого берутся комменты, place - путь, куда вставляется фрагмент
-var renderComments = function (userArray, place) {
-  for (var i = 0; i < userArray.comments.length; i++) {
-    var newElement = document.createElement('li');
-    newElement.className = 'social__comment';
-    newElement.innerHTML = '<img class="social__picture" src="img/avatar-' + getRandomArbitrary(1, 6) + '.svg" alt="Аватар комментатора фотографии" width="35" height="35">' + '<p class="social__text">' + userArray.comments[i] + '</p>';
-    fragment.appendChild(newElement);
+/**
+ * Функция для генерации dom-объекта и записи в него данных из входящего массива.
+ * @param {object} arrayElement элемент входящего массива.
+ * @param {object} templateElement темплейт для копирования.
+ * @return {Node} элемент списка с заполненной разметкой.
+ */
+var renderComment = function (arrayElement, templateElement) {
+  for (var i = 0; i < arrayElement.comments.length; i++) {
+    var commentItem = templateElement.cloneNode(true);
+    commentItem.querySelector('.social__picture').src = 'img/avatar-' + getRandomArbitrary(1, 6) + '.svg';
+    commentItem.querySelector('.social__text').textContent = arrayElement.comments[i];
+    fragment.appendChild(commentItem);
   }
-  place.appendChild(fragment);
+  return commentItem;
 };
 
-renderComments(objectsList[0], commentsList);
+renderComment(objectsList[0], commentTemplate);
+drawFragment(commentsList, fragment);
 
 document.querySelector('.social__comment-count').classList.add('visually-hidden');
 document.querySelector('.comments-loader').classList.add('visually-hidden');
