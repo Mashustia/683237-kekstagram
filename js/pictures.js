@@ -29,15 +29,15 @@ var getRandomArbitrary = function (min, max) {
 
 /**
  * Пустой массив объектов.
- * @type {Array}
+ * @type {array}
  */
 var objectsList = [];
 
 /**
  * Функция создает объект и пушит его в массив arrayToInsert.
  * @param {number} arrayElementNumber номер элемента в массиве.
- * @param {array} arrayToInsert массив для вставки оьъекта.
- * @param {array} descriptionArray массив с описаниями для фото
+ * @param {array} arrayToInsert массив для вставки объекта.
+ * @param {array} descriptionArray массив с описаниями для фото.
  */
 var createObject = function (arrayElementNumber, arrayToInsert, descriptionArray) {
   var newObject = {
@@ -71,7 +71,7 @@ var randomComments = function (commentsArray, commentsNumber) {
 
 /**
  * Нахожу template #picture.
- * @type {Element}
+ * @type {element}
  */
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
@@ -152,7 +152,7 @@ renderBigPicture(objectsList[0], bigPicture);
 var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 
 /**
- * Переменная, куда будем вставлять разметку.
+ * Переменная, куда будет вставляться разметка.
  */
 var commentsList = bigPicture.querySelector('.social__comments');
 
