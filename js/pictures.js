@@ -1,6 +1,7 @@
 'use strict';
 /**
  * Функция для генерации случайного числа в промежутке min, max.
+ * @function
  * @param {number} min минимальное значение числа.
  * @param {number} max максимальное значение числа.
  * @return {number} случайное число.
@@ -11,6 +12,7 @@ var getRandomArbitrary = function (min, max) {
 
 /**
  * Функция создает объект и пушит его в массив arrayToInsert.
+ * @function
  * @param {number} arrayElementNumber номер элемента в массиве.
  * @param {array} arrayToInsert массив для вставки объекта.
  * @param {array} descriptionArray массив с описаниями для фото.
@@ -27,10 +29,11 @@ var createObject = function (arrayElementNumber, arrayToInsert, descriptionArray
 
 /**
  * Функция для создания массива объектов.
- * @param totalObjects всего объектов в массиве.
- * @param arrayToInsert массив для вставки объектов.
+ * @function
+ * @param {number} totalObjects всего объектов в массиве.
+ * @param {array} arrayToInsert массив для вставки объектов.
+ * @param {array} descriptionArray массив с описаниями для фото.
  */
-
 var createArray = function (totalObjects, arrayToInsert, descriptionArray) {
   for (var i = 1; i <= totalObjects; i++) {
     createObject(i, arrayToInsert, descriptionArray);
@@ -39,6 +42,7 @@ var createArray = function (totalObjects, arrayToInsert, descriptionArray) {
 
 /**
  * Функция создает массив случайных комментариев
+ * @function
  * @param {array} commentsArray массив исходных комментариев
  * @param {number} commentsNumber количество требуемых комментариев
  * @return {Array} массив со случайными комментариями
@@ -53,6 +57,7 @@ var randomComments = function (commentsArray, commentsNumber) {
 
 /**
  * Функция для генерации dom-объекта и записи в него данных из массива objectsList.
+ * @function
  * @param {number} arrayElement элемент массива из которого берется информация.
  * @param {object} templateElement темплейт для копирования.
  * @return {Node} элемент списка с заполненной разметкой.
@@ -67,6 +72,7 @@ var renderPicture = function (arrayElement, templateElement) {
 
 /**
  * Функция записывает элементы в фрагмент.
+ * @function
  * @param {array} userArray массив из которого берется информация.
  * @param {object} templateElement темплейт для копирования.
  */
@@ -78,6 +84,7 @@ var writeElements = function (userArray, templateElement) {
 
 /**
  * Функция рисует фрагмент в блоке.
+ * @function
  * @param {object} place задает куда рисуем.
  * @param {object} fragmentParameter параметр содержащий фрагмент
  */
@@ -87,6 +94,7 @@ var drawFragment = function (place, fragmentParameter) {
 
 /**
  * Функция для заполнения big-picture.
+ * @function
  * @param {array} userArray  массив из которого берется информация.
  * @param {object} placeToRender место для вставки даных
  */
@@ -99,6 +107,7 @@ var renderBigPicture = function (userArray, placeToRender) {
 
 /**
  * Функция для генерации dom-объекта и записи в него данных из входящего массива.
+ * @function
  * @param {object} arrayElement элемент входящего массива.
  * @param {object} templateElement темплейт для копирования.
  * @return {Node} элемент списка с заполненной разметкой.
@@ -131,41 +140,12 @@ var testDescriptions = [
   'Вот это тачка!'
 ];
 
-/**
- * Пустой массив объектов.
- * @type {array}
- */
 var objectsList = [];
-
-/**
- * Нахожу template #picture.
- * @type {element}
- */
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
-
-/**
- * Переменная, куда будут вставляться картинки.
- */
 var picturesList = document.querySelector('.pictures');
-
-/**
- * Создаем фрагмент.
- */
 var fragment = document.createDocumentFragment();
-
-/**
- * Переменная для big-picture.
- */
 var bigPicture = document.querySelector('.big-picture');
-
-/**
- * Нахожу template #comment.
- */
 var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
-
-/**
- * Переменная, куда будет вставляться разметка.
- */
 var commentsList = bigPicture.querySelector('.social__comments');
 
 /**
