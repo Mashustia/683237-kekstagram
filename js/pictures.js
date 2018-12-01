@@ -360,6 +360,17 @@ var bigPictureEscClickHandler = function (evt) {
 };
 
 /**
+ * Функция создает обработчик событий для клавиши escape.
+ * @function
+ * @param {object} evt
+ */
+var bigPictureEnterClickHandler = function (evt) {
+  if (evt.code === ENTER_CODE) {
+    fillBigPicture(evt);
+  }
+};
+
+/**
  * Функция убирает класс hidden тега.
  * @function
  * @param {object} overlaySelector объект, у которого нужно убрать класс hidden.
@@ -407,15 +418,34 @@ var resetClassName = function (resetArgument) {
   resetArgument.className = '';
 };
 
+/**
+ * Функция заполняет поля элемента big-picture.
+ * @param {event} eventAttribute - входящее событие
+ */
+var fillBigPicture = function (eventAttribute) {
+  var currentObject = objectsList.filter(function (arrayObject) {
+    return arrayObject.id === eventAttribute.target.children[0].id;
+  });
+  openBigPictureOverlay(bigPicture);
+  renderBigPicture(currentObject[0], bigPicture);
+  renderComment(currentObject[0], commentTemplate);
+  deleteHtml(commentsList);
+  drawFragment(commentsList, fragment);
+  var bigPictureCloseButton = bigPicture.querySelector('.big-picture__cancel');
+  bigPictureCloseButton.addEventListener('click', function () {
+    closeBigPictureOverlay(bigPicture);
+  });
+};
+
 var uploadFileField = document.getElementById('upload-file');
 var imageEditingOverlay = document.querySelector('.img-upload__overlay');
 var closeButton = imageEditingOverlay.querySelector('.img-upload__cancel');
 var ESC_CODE = 'Escape';
+var ENTER_CODE = 'Enter';
 
 var sliderPin = document.querySelector('.effect-level__pin');
 var sliderLine = document.querySelector('.effect-level__line');
 var sliderEffectInput = document.querySelector('.effect-level__value');
-
 
 var imgPreviewWrapper = document.querySelector('.img-upload__preview');
 var uploadImage = imgPreviewWrapper.querySelector('img');
@@ -440,7 +470,6 @@ sliderPin.addEventListener('mouseup', function (evt) {
   addFilterPhobos(pinPoint, uploadImage);
   addFilterHeat(pinPoint, uploadImage);
 });
-
 
 effectsList.addEventListener('click', function (evt) {
   if (evt.target.classList.contains('effects__radio')) {
@@ -469,5 +498,11 @@ picturesList.addEventListener('click', function (evt) {
     bigPictureCloseButton.addEventListener('click', function () {
       closeBigPictureOverlay(bigPicture);
     });
+  }
+});
+
+picturesList.addEventListener('keydown', function (evt) {
+  if (evt.target.classList.contains('picture')) {
+    bigPictureEnterClickHandler(evt);
   }
 });
