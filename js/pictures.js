@@ -462,7 +462,7 @@ closeButton.addEventListener('click', function () {
 
 sliderPin.addEventListener('mouseup', function (evt) {
   var pinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
-  sliderEffectInput.value = pinPoint;
+  sliderEffectInput.setAttribute('value', pinPoint);
   addFilterNone(uploadImage);
   addFilterChrome(pinPoint, uploadImage);
   addFilterSepia(pinPoint, uploadImage);
@@ -479,7 +479,7 @@ effectsList.addEventListener('click', function (evt) {
     var effectLevelContainer = document.querySelector('.effect-level');
     hideEffectsNoneSlider(uploadImage, effectLevelContainer);
     var sliderEffectInputDefault = '100';
-    sliderEffectInput.value = sliderEffectInputDefault;
+    sliderEffectInput.setAttribute('value', sliderEffectInputDefault);
     removeNecessaryAttribute(uploadImage, 'style');
   }
 });
