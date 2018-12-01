@@ -70,7 +70,7 @@ var createArray = function (totalObjects, arrayToInsert, descriptionArray) {
 var randomComments = function (commentsArray, commentsNumber) {
   var commentsTotal = [];
   for (var i = 0; i < commentsNumber; i++) {
-    commentsTotal.push(commentsArray[getRandomArbitrary(1, 6) - 1]);
+    commentsTotal.push(commentsArray[getRandomArbitrary(minNumber, maxNumber) - 1]);
   }
   return commentsTotal;
 };
@@ -168,11 +168,14 @@ var fragment = document.createDocumentFragment();
 var bigPicture = document.querySelector('.big-picture');
 var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 var commentsList = bigPicture.querySelector('.social__comments');
+var elementsInArrayQuantity = 25;
+var minNumber = 1;
+var maxNumber = 6;
 
 /**
  * Создаю массив из 25 объектов и рисую его в блоке .picture.
  */
-createArray(25, objectsList, testDescriptions);
+createArray(elementsInArrayQuantity, objectsList, testDescriptions);
 writeElements(objectsList, pictureTemplate);
 drawFragment(picturesList, fragment);
 
