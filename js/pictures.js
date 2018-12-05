@@ -335,6 +335,21 @@ var addFilterHeat = function (PinPointValue, checkedArgument) {
 };
 
 /**
+ * Функция добавляет сразу все функции с фильтрами (из функций выше).
+ * @function
+ * @param {number} PinPointValue интенсивность фильтра от 0 до 100.
+ * @param {object} checkedArgument параметр, класс которого проверяем.
+ */
+var addAllFilters = function (PinPointValue, checkedArgument) {
+  addFilterNone(checkedArgument);
+  addFilterChrome(PinPointValue, checkedArgument);
+  addFilterSepia(PinPointValue, checkedArgument);
+  addFilterMarvin(PinPointValue, checkedArgument);
+  addFilterPhobos(PinPointValue, checkedArgument);
+  addFilterHeat(PinPointValue, checkedArgument);
+};
+
+/**
  * Функция скрывает слайдер для effects__preview--none.
  * @function
  * @param {object} checkedArgument параметр, класс которого проверяем.
@@ -460,17 +475,6 @@ closeButton.addEventListener('click', function () {
   clearInputValue(uploadFileField);
 });
 
-sliderPin.addEventListener('mouseup', function (evt) {
-  var pinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
-  sliderEffectInput.setAttribute('value', pinPoint);
-  addFilterNone(uploadImage);
-  addFilterChrome(pinPoint, uploadImage);
-  addFilterSepia(pinPoint, uploadImage);
-  addFilterMarvin(pinPoint, uploadImage);
-  addFilterPhobos(pinPoint, uploadImage);
-  addFilterHeat(pinPoint, uploadImage);
-});
-
 effectsList.addEventListener('click', function (evt) {
   if (evt.target.classList.contains('effects__radio')) {
     resetClassName(uploadImage);
@@ -480,6 +484,9 @@ effectsList.addEventListener('click', function (evt) {
     hideEffectsNoneSlider(uploadImage, effectLevelContainer);
     var sliderEffectInputDefault = '100';
     sliderEffectInput.setAttribute('value', sliderEffectInputDefault);
+    var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
+    sliderPin.style.left = sliderEffectInputDefault + '%';
+    sliderEffectLevelDepth.style.width = sliderEffectInputDefault + '%';
     removeNecessaryAttribute(uploadImage, 'style');
   }
 });
@@ -640,3 +647,35 @@ hashtagInput.addEventListener('focus', function () {
 hashtagInput.addEventListener('blur', function () {
   document.addEventListener('keydown', escClickHandler);
 });
+
+(function () {
+  var uploadingImage = imgPreviewWrapper.querySelector('img');
+  var sliderEffect = document.querySelector('.effect-level__value');
+  var sliderEffectDepth = document.querySelector('.effect-level__depth');
+
+  sliderPin.addEventListener('mousedown', function (evt) {
+    var startPinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
+
+    var onMouseMove = function (moveEvt) {
+      var shift = getPinPoint(getLeftCoords(sliderLine), moveEvt) - startPinPoint;
+      sliderPin.style.left = startPinPoint + shift + '%';
+      startPinPoint = getPinPoint(getLeftCoords(sliderLine), moveEvt);
+
+      sliderEffectDepth.style.width = startPinPoint + shift + '%';
+      sliderEffect.setAttribute('value', startPinPoint);
+      addAllFilters(startPinPoint, uploadingImage);
+    };
+
+    var onMouseUp = function () {
+      sliderPin.style.left = startPinPoint + '%';
+      sliderEffectDepth.style.width = startPinPoint + '%';
+      sliderEffect.setAttribute('value', startPinPoint);
+      addAllFilters(startPinPoint, uploadingImage);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+})();
