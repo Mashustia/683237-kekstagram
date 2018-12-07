@@ -542,6 +542,7 @@ main {
   display: block;
   max-width: 600px;
   max-height: 600px;
+  user-select: none;
 }
 
 

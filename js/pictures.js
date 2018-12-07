@@ -6,9 +6,11 @@
  * @param {number} max максимальное значение числа.
  * @return {number} случайное число.
  */
+/*
 var getRandomArbitrary = function (min, max) {
   return Math.round(Math.random() * (max - min) + min);
 };
+*/
 
 /**
  * Универсальная функция для добавления класса
@@ -16,18 +18,21 @@ var getRandomArbitrary = function (min, max) {
  * @param {object} placeToAdd - аргумент, которому нужно добавить класс.
  * @param {object} newClass класс, который нужно добавить
  */
+/*
 var addСlassThisElement = function (placeToAdd, newClass) {
   placeToAdd.classList.add(newClass);
 };
-
+*/
 /**
  * Функция для удаления атрибута тега
  * @param {object} checkedArgument тег, у которого будет удаляться атрибут
  * @param {string} removedAttribute атрибут, который нужно удалить
  */
+/*
 var removeNecessaryAttribute = function (checkedArgument, removedAttribute) {
   checkedArgument.removeAttribute(removedAttribute);
 };
+*/
 
 /**
  * Функция создает объект и пушит его в массив arrayToInsert.
@@ -36,6 +41,7 @@ var removeNecessaryAttribute = function (checkedArgument, removedAttribute) {
  * @param {array} arrayToInsert массив для вставки объекта.
  * @param {array} descriptionArray массив с описаниями для фото.
  */
+/*
 var createObject = function (arrayElementNumber, arrayToInsert, descriptionArray) {
   var newObject = {
     url: 'photos/' + arrayElementNumber + '.jpg',
@@ -46,7 +52,7 @@ var createObject = function (arrayElementNumber, arrayToInsert, descriptionArray
   };
   arrayToInsert.push(newObject);
 };
-
+*/
 /**
  * Функция для создания массива объектов.
  * @function
@@ -54,12 +60,13 @@ var createObject = function (arrayElementNumber, arrayToInsert, descriptionArray
  * @param {array} arrayToInsert массив для вставки объектов.
  * @param {array} descriptionArray массив с описаниями для фото.
  */
+/*
 var createArray = function (totalObjects, arrayToInsert, descriptionArray) {
   for (var i = 1; i <= totalObjects; i++) {
     createObject(i, arrayToInsert, descriptionArray);
   }
 };
-
+*/
 /**
  * Функция создает массив случайных комментариев
  * @function
@@ -67,6 +74,7 @@ var createArray = function (totalObjects, arrayToInsert, descriptionArray) {
  * @param {number} commentsNumber количество требуемых комментариев
  * @return {Array} массив со случайными комментариями
  */
+/*
 var randomComments = function (commentsArray, commentsNumber) {
   var commentsTotal = [];
   for (var i = 0; i < commentsNumber; i++) {
@@ -74,7 +82,7 @@ var randomComments = function (commentsArray, commentsNumber) {
   }
   return commentsTotal;
 };
-
+*/
 /**
  * Функция для генерации dom-объекта и записи в него данных из массива objectsList.
  * @function
@@ -82,6 +90,7 @@ var randomComments = function (commentsArray, commentsNumber) {
  * @param {object} templateElement темплейт для копирования.
  * @return {Node} элемент списка с заполненной разметкой.
  */
+/*
 var renderPicture = function (arrayElement, templateElement) {
   var pictureItem = templateElement.cloneNode(true);
   pictureItem.querySelector('.picture__img').src = arrayElement.url;
@@ -90,18 +99,20 @@ var renderPicture = function (arrayElement, templateElement) {
   pictureItem.querySelector('.picture__comments').textContent = arrayElement.comments.length;
   return pictureItem;
 };
-
+*/
 /**
  * Функция записывает элементы в фрагмент.
  * @function
  * @param {array} userArray массив из которого берется информация.
  * @param {object} templateElement темплейт для копирования.
  */
+/*
 var writeElements = function (userArray, templateElement) {
   for (var i = 0; i < userArray.length; i++) {
     fragment.appendChild(renderPicture(userArray[i], templateElement));
   }
 };
+*/
 
 /**
  * Функция рисует фрагмент в блоке.
@@ -109,9 +120,11 @@ var writeElements = function (userArray, templateElement) {
  * @param {object} place задает куда рисуем.
  * @param {object} fragmentParameter параметр содержащий фрагмент
  */
+/*
 var drawFragment = function (place, fragmentParameter) {
   place.appendChild(fragmentParameter);
 };
+*/
 
 /**
  * Функция для заполнения big-picture.
@@ -119,12 +132,14 @@ var drawFragment = function (place, fragmentParameter) {
  * @param {array} userArray  массив из которого берется информация.
  * @param {object} placeToRender место для вставки даных
  */
+/*
 var renderBigPicture = function (userArray, placeToRender) {
   placeToRender.querySelector('.big-picture__img').querySelector('img').src = userArray.url;
   placeToRender.querySelector('.likes-count').textContent = userArray.likes;
   placeToRender.querySelector('.comments-count').textContent = userArray.comments.length;
   placeToRender.querySelector('.social__caption').textContent = userArray.description;
 };
+*/
 
 /**
  * Функция для генерации dom-объекта и записи в него данных из входящего массива.
@@ -133,6 +148,7 @@ var renderBigPicture = function (userArray, placeToRender) {
  * @param {object} templateElement темплейт для копирования.
  * @return {Node} элемент списка с заполненной разметкой.
  */
+/*
 var renderComment = function (arrayElement, templateElement) {
   for (var i = 0; i < arrayElement.comments.length; i++) {
     var commentItem = templateElement.cloneNode(true);
@@ -142,7 +158,8 @@ var renderComment = function (arrayElement, templateElement) {
   }
   return commentItem;
 };
-
+*/
+/*
 var testComments = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
@@ -171,57 +188,63 @@ var commentsList = bigPicture.querySelector('.social__comments');
 var elementsInArrayQuantity = 25;
 var minNumber = 1;
 var maxNumber = 6;
-
+*/
 /**
  * Создаю массив из 25 объектов и рисую его в блоке .picture.
  */
+/*
 createArray(elementsInArrayQuantity, objectsList, testDescriptions);
 writeElements(objectsList, pictureTemplate);
 drawFragment(picturesList, fragment);
 
 document.querySelector('.social__comment-count').classList.add('visually-hidden');
 document.querySelector('.comments-loader').classList.add('visually-hidden');
-
+*/
 /**
  * Функция задает объекту значение '' (пустая строка).
  * @function
  * @param {object} uploadField задает объект, которому нужно присвоить пустую строку.
  */
+/*
 var clearInputValue = function (uploadField) {
   uploadField.value = '';
 };
-
+*/
 /**
  * Функция для закрытия формы редактирования изображения по клавише esc
  * @function
  * @param {event} evt - event
  */
+/*
 var escClickHandler = function (evt) {
   if (evt.code === ESC_CODE) {
     closeEditingOverlay(imageEditingOverlay);
     clearInputValue(uploadFileField);
   }
 };
-
+*/
 /**
  * Функция убирает класс hidden тега.
  * @function
  * @param {object} overlaySelector объект, у которого нужно убрать класс hidden.
  */
+/*
 var openEditingOverlay = function (overlaySelector) {
   overlaySelector.classList.remove('hidden');
   document.addEventListener('keydown', escClickHandler);
 };
-
+*/
 /**
  * Функция добавляет класс hidden тегу.
  * @function
  * @param {object} overlaySelector объект, которому нужно добавить класс hidden.
  */
+/*
 var closeEditingOverlay = function (overlaySelector) {
   overlaySelector.classList.add('hidden');
   document.removeEventListener('keydown', escClickHandler);
 };
+*/
 
 /**
  * Функция для определения координат контейнера.
@@ -229,11 +252,12 @@ var closeEditingOverlay = function (overlaySelector) {
  * @param {object} elem контейнер для которого нужны координаты.
  * @return {number} возвращает координату контейнера по X
  */
+/*
 var getLeftCoords = function (elem) {
   var box = elem.getBoundingClientRect();
   return box.left + pageXOffset;
 };
-
+*/
 /**
  * Функция рассчитывает интенсивность эффекта (Хром, Сепия, Фобос...) в зависимости от положения пина.
  * @function
@@ -241,6 +265,7 @@ var getLeftCoords = function (elem) {
  * @param {object} clickPoint задает event.
  * @return {number} возвращает интенсивность фильтра от 0 до 100.
  */
+/*
 var getPinPoint = function (startingCoordinate, clickPoint) {
   var effectLevelLineWidth = 453;
   var oneHundred = 100;
@@ -253,18 +278,20 @@ var getPinPoint = function (startingCoordinate, clickPoint) {
   }
   return effectSaturation;
 };
+*/
 
 /**
  * Функция переводит интенсивность фильтра в требуемые единицы
  * @function
  * @param {object} checkedArgument параметр, класс которого проверяем.
  */
+/*
 var addFilterNone = function (checkedArgument) {
   if (checkedArgument.className === 'effects__preview--none') {
     // нет кода
   }
 };
-
+*/
 /**
  * Функция переводит интенсивность фильтра в требуемые единицы и добавляет фильтр на картинку
  * Фильтр - Хром.
@@ -272,13 +299,14 @@ var addFilterNone = function (checkedArgument) {
  * @param {number} PinPointValue интенсивность фильтра от 0 до 100.
  * @param {object} checkedArgument параметр, класс которого проверяем.
  */
+/*
 var addFilterChrome = function (PinPointValue, checkedArgument) {
   if (checkedArgument.className === 'effects__preview--chrome') {
     var grayscaleParametr = PinPointValue / 100;
     checkedArgument.style.filter = 'grayscale(' + grayscaleParametr + ')';
   }
 };
-
+*/
 /**
  * Функция переводит интенсивность фильтра в требуемые единицы и добавляет фильтр на картинку
  * Фильтр - Сепия.
@@ -286,13 +314,14 @@ var addFilterChrome = function (PinPointValue, checkedArgument) {
  * @param {number} PinPointValue интенсивность фильтра от 0 до 100.
  * @param {object} checkedArgument параметр, класс которого проверяем.
  */
+/*
 var addFilterSepia = function (PinPointValue, checkedArgument) {
   if (checkedArgument.className === 'effects__preview--sepia') {
     var sepiaParametr = PinPointValue / 100;
     checkedArgument.style.filter = 'sepia(' + sepiaParametr + ')';
   }
 };
-
+*/
 /**
  * Функция переводит интенсивность фильтра в требуемые единицы и добавляет фильтр на картинку
  * Фильтр - Марвин.
@@ -300,12 +329,13 @@ var addFilterSepia = function (PinPointValue, checkedArgument) {
  * @param {number} PinPointValue интенсивность фильтра от 0 до 100.
  * @param {object} checkedArgument параметр, класс которого проверяем.
  */
+/*
 var addFilterMarvin = function (PinPointValue, checkedArgument) {
   if (checkedArgument.className === 'effects__preview--marvin') {
     checkedArgument.style.filter = 'invert(' + PinPointValue + '%' + ')';
   }
 };
-
+*/
 /**
  * Функция переводит интенсивность фильтра в требуемые единицы и добавляет фильтр на картинку
  * Фильтр - Фобос.
@@ -313,13 +343,14 @@ var addFilterMarvin = function (PinPointValue, checkedArgument) {
  * @param {number} PinPointValue интенсивность фильтра от 0 до 100.
  * @param {object} checkedArgument параметр, класс которого проверяем.
  */
+/*
 var addFilterPhobos = function (PinPointValue, checkedArgument) {
   if (checkedArgument.className === 'effects__preview--phobos') {
     var phobosParametr = PinPointValue * 0.05;
     checkedArgument.style.filter = 'blur(' + phobosParametr + 'px' + ')';
   }
 };
-
+*/
 /**
  * Функция переводит интенсивность фильтра в требуемые единицы и добавляет фильтр на картинку
  * Фильтр - Зной.
@@ -327,19 +358,21 @@ var addFilterPhobos = function (PinPointValue, checkedArgument) {
  * @param {number} PinPointValue интенсивность фильтра от 0 до 100.
  * @param {object} checkedArgument параметр, класс которого проверяем.
  */
+/*
 var addFilterHeat = function (PinPointValue, checkedArgument) {
   if (checkedArgument.className === 'effects__preview--heat') {
     var heatParametr = PinPointValue * 0.03;
     checkedArgument.style.filter = 'brightness(' + heatParametr + ')';
   }
 };
-
+*/
 /**
  * Функция добавляет сразу все функции с фильтрами (из функций выше).
  * @function
  * @param {number} PinPointValue интенсивность фильтра от 0 до 100.
  * @param {object} checkedArgument параметр, класс которого проверяем.
  */
+/*
 var addAllFilters = function (PinPointValue, checkedArgument) {
   addFilterNone(checkedArgument);
   addFilterChrome(PinPointValue, checkedArgument);
@@ -348,6 +381,7 @@ var addAllFilters = function (PinPointValue, checkedArgument) {
   addFilterPhobos(PinPointValue, checkedArgument);
   addFilterHeat(PinPointValue, checkedArgument);
 };
+*/
 
 /**
  * Функция скрывает слайдер для effects__preview--none.
@@ -355,6 +389,7 @@ var addAllFilters = function (PinPointValue, checkedArgument) {
  * @param {object} checkedArgument параметр, класс которого проверяем.
  * @param {object} mustBeHidden параметр, который должен быть скрыт.
  */
+/*
 var hideEffectsNoneSlider = function (checkedArgument, mustBeHidden) {
   if (checkedArgument.classList.contains('effects__preview--none')) {
     mustBeHidden.classList.add('hidden');
@@ -362,57 +397,66 @@ var hideEffectsNoneSlider = function (checkedArgument, mustBeHidden) {
     mustBeHidden.classList.remove('hidden');
   }
 };
-
+*/
 /**
  * Функция создает обработчик событий для клавиши escape.
  * @function
  * @param {object} evt
  */
+/*
 var bigPictureEscClickHandler = function (evt) {
   if (evt.code === ESC_CODE) {
     closeBigPictureOverlay(bigPicture);
   }
 };
+*/
 
 /**
  * Функция создает обработчик событий для клавиши escape.
  * @function
  * @param {object} evt
  */
+/*
 var bigPictureEnterClickHandler = function (evt) {
   if (evt.code === ENTER_CODE) {
     fillBigPicture(evt);
   }
 };
+*/
 
 /**
  * Функция убирает класс hidden тега.
  * @function
  * @param {object} overlaySelector объект, у которого нужно убрать класс hidden.
  */
+/*
 var openBigPictureOverlay = function (overlaySelector) {
   overlaySelector.classList.remove('hidden');
   document.addEventListener('keydown', bigPictureEscClickHandler);
 };
-
+*/
 /**
  * Функция добавляет класс hidden тегу.
  * @function
  * @param {object} overlaySelector объект, которому нужно добавить класс hidden.
  */
+/*
 var closeBigPictureOverlay = function (overlaySelector) {
   overlaySelector.classList.add('hidden');
   document.removeEventListener('keydown', bigPictureEscClickHandler);
 };
+*/
 
 /**
  * Функция для удаления разметки
  * @function
  * @param {objeckt} place - объект, у которого нужно удалить разметку;
  */
+/*
 var deleteHtml = function (place) {
   place.innerHTML = '';
 };
+*/
 
 /**
  * Функция обрезает id элемента так, как нужно.
@@ -420,23 +464,26 @@ var deleteHtml = function (place) {
  * @param {event} checkedEvent проверяемый элемент.
  * @return {string} возвращает измененный id.
  */
+/*
 var sliceIdName = function (checkedEvent) {
   return checkedEvent.target.id.slice(0, 6) + 's__preview--' + checkedEvent.target.id.slice(7);
 };
-
+*/
 /**
  * Функция сбрасывает имя класса до пустой строки ('').
  * @function
  * @param {object} resetArgument элемент, которому сбрасывается класс
  */
+/*
 var resetClassName = function (resetArgument) {
   resetArgument.className = '';
 };
-
+*/
 /**
  * Функция заполняет поля элемента big-picture.
  * @param {event} eventAttribute - входящее событие
  */
+/*
 var fillBigPicture = function (eventAttribute) {
   var currentObject = objectsList.filter(function (arrayObject) {
     return arrayObject.id === eventAttribute.target.children[0].id;
@@ -451,7 +498,8 @@ var fillBigPicture = function (eventAttribute) {
     closeBigPictureOverlay(bigPicture);
   });
 };
-
+*/
+/*
 var uploadFileField = document.getElementById('upload-file');
 var imageEditingOverlay = document.querySelector('.img-upload__overlay');
 var closeButton = imageEditingOverlay.querySelector('.img-upload__cancel');
@@ -459,7 +507,7 @@ var ESC_CODE = 'Escape';
 var ENTER_CODE = 'Enter';
 
 var sliderPin = document.querySelector('.effect-level__pin');
-var sliderLine = document.querySelector('.effect-level__line');
+// var sliderLine = document.querySelector('.effect-level__line');
 var sliderEffectInput = document.querySelector('.effect-level__value');
 
 var imgPreviewWrapper = document.querySelector('.img-upload__preview');
@@ -513,13 +561,14 @@ picturesList.addEventListener('keydown', function (evt) {
     bigPictureEnterClickHandler(evt);
   }
 });
-
+*/
 /**
  * Функция разделяет строку на массив, разделитель - пробел
  * @function
  * @param {string} checkString входящая строка
  * @return {never|string[]} массив
  */
+/*
 var splitHashtagString = function (checkString) {
   var anyNumberOfSpaces = /\s+/;
   if (checkString.value !== undefined) {
@@ -531,6 +580,7 @@ var splitHashtagString = function (checkString) {
   }
   return hashtagArray;
 };
+*/
 
 /**
  * Функция проверят, что длинна массива хештегов не больше 5
@@ -539,6 +589,7 @@ var splitHashtagString = function (checkString) {
  * @param {object} eventAttribute - evt.target
  * @return {boolean} false в случае ошибки в тегах, true, когда теги верны
  */
+/*
 var checkHashtagCount = function (checkArray, eventAttribute) {
   if (checkArray.length > 5) {
     eventAttribute.setCustomValidity(warningList.fourth);
@@ -546,7 +597,7 @@ var checkHashtagCount = function (checkArray, eventAttribute) {
   }
   return true;
 };
-
+*/
 /**
  * Функция проверят, что:
  * 1) Хештег начинается с решетки
@@ -557,6 +608,7 @@ var checkHashtagCount = function (checkArray, eventAttribute) {
  * @param {array} checkArray проверяемый массив
  * @param {object} eventAttribute - evt.target
  */
+/*
 var checkHashtagLength = function (checkArray, eventAttribute) {
   checkArray.forEach(function (hashtag) {
     if (hashtag.charAt(0) !== '#') {
@@ -578,16 +630,18 @@ var checkHashtagLength = function (checkArray, eventAttribute) {
     return true;
   });
 };
+*/
 
 /**
  * Функция очищает CustomValidity
  * @param {array} checkArray проверяемый массив
  * @param {object} eventAttribute - evt.target
  */
+/*
 var clearCustomValidity = function (checkArray, eventAttribute) {
   eventAttribute.setCustomValidity('');
 };
-
+*/
 /**
  * Функция проверят, что в массиве нет повторяющихся значений
  * @function
@@ -595,6 +649,7 @@ var clearCustomValidity = function (checkArray, eventAttribute) {
  * @param {object} eventAttribute - evt.target
  * @return {boolean} false в случае ошибки в тегах, true, когда теги верны
  */
+/*
 var checkHashtagRepeat = function (checkArray, eventAttribute) {
   var uniuniqueHashtagArray = chooseUniqueElements(checkArray);
   if (uniuniqueHashtagArray.length !== checkArray.length) {
@@ -603,6 +658,7 @@ var checkHashtagRepeat = function (checkArray, eventAttribute) {
   }
   return true;
 };
+*/
 
 /**
  * Функция создает из входящего масссива другой массив, содержащий только уникальные элементы
@@ -610,6 +666,7 @@ var checkHashtagRepeat = function (checkArray, eventAttribute) {
  * @param {array} checkedAray массив для проверки на уникальность
  * @return {string[]} возвращает массив уникальных значений
  */
+/*
 var chooseUniqueElements = function (checkedAray) {
   var obj = {};
   checkedAray.forEach(function (hashtag) {
@@ -618,7 +675,8 @@ var chooseUniqueElements = function (checkedAray) {
   });
   return Object.keys(obj);
 };
-
+*/
+/*
 var hashtagInput = document.querySelector('.text__hashtags');
 var warningList = {
   first: 'Хэш-тег должен начинаться с символа #',
@@ -647,8 +705,11 @@ hashtagInput.addEventListener('focus', function () {
 hashtagInput.addEventListener('blur', function () {
   document.addEventListener('keydown', escClickHandler);
 });
+*/
 
+/*
 (function () {
+  var imgPreviewWrapper = document.querySelector('.img-upload__preview');
   var uploadingImage = imgPreviewWrapper.querySelector('img');
   var sliderEffect = document.querySelector('.effect-level__value');
   var sliderEffectDepth = document.querySelector('.effect-level__depth');
@@ -679,3 +740,4 @@ hashtagInput.addEventListener('blur', function () {
     document.addEventListener('mouseup', onMouseUp);
   });
 })();
+*/
