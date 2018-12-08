@@ -8,18 +8,19 @@
    * @return {number} возвращает интенсивность фильтра от 0 до 100.
    */
   var getPinPoint = function (startingCoordinate, clickPoint) {
-    var containerWidth = 453;
-    var proportionMaxValue = 100;
-    var proportionMinValue = 0;
-    var saturationValue = (clickPoint.clientX - startingCoordinate) * proportionMaxValue / containerWidth;
-    if (saturationValue < proportionMinValue) {
-      saturationValue = proportionMinValue;
+    var CONTAINER_WIDTH = 453;
+    var PROPORTION_MAX_VALUE = 100;
+    var PROPORTION_MIN_VALUE = 0;
+    var saturationValue = (clickPoint.clientX - startingCoordinate) * PROPORTION_MAX_VALUE / CONTAINER_WIDTH;
+    if (saturationValue < PROPORTION_MIN_VALUE) {
+      saturationValue = PROPORTION_MIN_VALUE;
     }
-    if (saturationValue > proportionMaxValue) {
-      saturationValue = proportionMaxValue;
+    if (saturationValue > PROPORTION_MAX_VALUE) {
+      saturationValue = PROPORTION_MAX_VALUE;
     }
     return saturationValue;
   };
+
   /**
    * Функция для определения координат контейнера.
    * @function
@@ -30,6 +31,7 @@
     var box = elem.getBoundingClientRect();
     return box.left + pageXOffset;
   };
+
   /**
    * Функция переводит интенсивность фильтра в проценты согласно пропорции.
    * @function
@@ -38,10 +40,11 @@
    * @return {number} возвращает интенсивность фильтра в прцентах от filterMaxValue.
    */
   var returnPercent = function (PinPointValue, filterMaxValue) {
-    var proportionMaxValue = 100;
-    var percent = PinPointValue * (filterMaxValue / proportionMaxValue);
+    var PROPORTION_MAX_VALUE = 100;
+    var percent = PinPointValue * (filterMaxValue / PROPORTION_MAX_VALUE);
     return percent;
   };
+
   /**
    * Функция добавляет css свойсто style выбранному тегу
    * @function
@@ -60,45 +63,38 @@
       checkedArgument.style.filter = '' + cssProperty + '(' + cssPropertyValue + ')';
     }
   };
+
   /**
    * Функция добавляет тегу стили, в зависимости от класса
    * @function
    * @param {number} PinPointValue - интенсивность фильтра от 0 до 100.
    * @param {object} checkedTag - тег, у которого проверяется класс
-   * @param {object} ClassNames - объект с классами тега
-   * @param {object} cssPropertiesList - объект с названиями фильтров и их максимальными значениями
+   * @param {object} filterPropertiesList - объект с параметрами фильтров
    */
-  var addAllFilters = function (PinPointValue, checkedTag, ClassNames, cssPropertiesList) {
+  var addAllFilters = function (PinPointValue, checkedTag, filterPropertiesList) {
     switch (checkedTag.className) {
-      case ClassNames.none:
+      case filterPropertiesList.none.class:
         break;
-      case ClassNames.chrome:
-        addFilterName(checkedTag, cssPropertiesList.chrome, returnPercent(PinPointValue, cssPropertiesList.chromeMaxValue));
+      case filterPropertiesList.chrome.class:
+        addFilterName(checkedTag, filterPropertiesList.chrome.cssProperty, returnPercent(PinPointValue, filterPropertiesList.chrome.maxValue));
         break;
-      case ClassNames.sepia:
-        addFilterName(checkedTag, cssPropertiesList.sepia, returnPercent(PinPointValue, cssPropertiesList.sepiaMaxValue));
+      case filterPropertiesList.sepia.class:
+        addFilterName(checkedTag, filterPropertiesList.sepia.cssProperty, returnPercent(PinPointValue, filterPropertiesList.sepia.maxValue));
         break;
-      case ClassNames.marvin:
-        addFilterName(checkedTag, cssPropertiesList.marvin, PinPointValue, true);
+      case filterPropertiesList.marvin.class:
+        addFilterName(checkedTag, filterPropertiesList.marvin.cssProperty, PinPointValue, true);
         break;
-      case ClassNames.phobos:
-        addFilterName(checkedTag, cssPropertiesList.phobos, returnPercent(PinPointValue, cssPropertiesList.phobosMaxValue), false, true);
+      case filterPropertiesList.phobos.class:
+        addFilterName(checkedTag, filterPropertiesList.phobos.cssProperty, returnPercent(PinPointValue, filterPropertiesList.phobos.maxValue), false, true);
         break;
-      case ClassNames.heat:
-        addFilterName(checkedTag, cssPropertiesList.heat, returnPercent(PinPointValue, cssPropertiesList.heatMaxValue));
+      case filterPropertiesList.heat.class:
+        addFilterName(checkedTag, filterPropertiesList.heat.cssProperty, returnPercent(PinPointValue, filterPropertiesList.heat.maxValue));
         break;
       default:
         break;
     }
   };
-  /**
-   * Функция сбрасывает имя класса до пустой строки ('').
-   * @function
-   * @param {object} resetArgument элемент, которому сбрасывается класс
-   */
-  var resetClassName = function (resetArgument) {
-    resetArgument.className = '';
-  };
+
   /**
    * Функция обрезает id элемента так, как нужно.
    * @function
@@ -106,8 +102,11 @@
    * @return {string} возвращает измененный id.
    */
   var sliceIdName = function (checkedEvent) {
-    return checkedEvent.target.id.slice(0, 6) + 's__preview--' + checkedEvent.target.id.slice(7);
+    var EFFECT_NAME_FIRST_LETTER_NUMBER = 7;
+    var EFFECTS_PREVIEW = 'effects__preview--';
+    return EFFECTS_PREVIEW + checkedEvent.target.id.slice(EFFECT_NAME_FIRST_LETTER_NUMBER);
   };
+
   /**
    * Функция скрывает слайдер для effects__preview--none.
    * @function
@@ -115,12 +114,13 @@
    * @param {object} mustBeHidden параметр, который должен быть скрыт.
    */
   var hideSlider = function (checkedArgument, mustBeHidden) {
-    if (checkedArgument.classList.contains('effects__preview--none')) {
+    if (checkedArgument.classList.contains(filterProperties.none.class)) {
       mustBeHidden.classList.add('hidden');
     } else {
       mustBeHidden.classList.remove('hidden');
     }
   };
+
   /**
    * Функция округляет входящие значения
    * @param {number} numberToRound число, которое нужно округлить
@@ -130,6 +130,7 @@
   var roundNumber = function (numberToRound, numberDigit) {
     return Math.round(numberToRound * numberDigit) / numberDigit;
   };
+
   /**
    * Функция устанавливает объекту положение слева
    * @function
@@ -137,8 +138,10 @@
    * @param {number} styleValue - значение стиля
    */
   var setStyleLeft = function (tagName, styleValue) {
-    tagName.style.left = styleValue + '%';
+    var PERCENT_SIGN = '%';
+    tagName.style.left = styleValue + PERCENT_SIGN;
   };
+
   /**
    * Функция устанавливает объекту ширину
    * @function
@@ -146,30 +149,49 @@
    * @param {number} styleValue - значение стиля
    */
   var setStyleWidth = function (tagName, styleValue) {
-    tagName.style.width = styleValue + '%';
+    var PERCENT_SIGN = '%';
+    tagName.style.width = styleValue + PERCENT_SIGN;
   };
-  var filterCssProperties = {
-    none: 'none',
-    noneMaxValue: 1,
-    chrome: 'grayscale',
-    chromeMaxValue: 1,
-    sepia: 'sepia',
-    sepiaMaxValue: 1,
-    marvin: 'invert',
-    marvinMaxValue: 1,
-    phobos: 'blur',
-    phobosMaxValue: 3,
-    heat: 'brightness',
-    heatMaxValue: 3
+
+  var filterProperties = {
+    none: {
+      name: 'none',
+      cssProperty: 'none',
+      class: 'effects__preview--none',
+      maxValue: 1
+    },
+    chrome: {
+      name: 'chrome',
+      cssProperty: 'grayscale',
+      class: 'effects__preview--chrome',
+      maxValue: 1
+    },
+    sepia: {
+      name: 'sepia',
+      cssProperty: 'sepia',
+      class: 'effects__preview--sepia',
+      maxValue: 1
+    },
+    marvin: {
+      name: 'marvin',
+      cssProperty: 'invert',
+      class: 'effects__preview--marvin',
+      maxValue: 1
+    },
+    phobos: {
+      name: 'phobos',
+      cssProperty: 'blur',
+      class: 'effects__preview--phobos',
+      maxValue: 3
+    },
+    heat: {
+      name: 'heat',
+      cssProperty: 'brightness',
+      class: 'effects__preview--heat',
+      maxValue: 3
+    }
   };
-  var filterClassNames = {
-    none: 'effects__preview--none',
-    chrome: 'effects__preview--chrome',
-    sepia: 'effects__preview--sepia',
-    marvin: 'effects__preview--marvin',
-    phobos: 'effects__preview--phobos',
-    heat: 'effects__preview--heat'
-  };
+
   var imgPreviewWrapper = document.querySelector('.img-upload__preview');
   var uploadImage = imgPreviewWrapper.querySelector('img');
   var effectsList = document.querySelector('.effects__list');
@@ -183,38 +205,46 @@
       var effectLevelContainer = document.querySelector('.effect-level');
       var sliderEffectInputDefault = '100';
       var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
-      resetClassName(uploadImage);
-      window.changeClass.add(uploadImage, newClass);
+
+      uploadImage.className = '';
+      uploadImage.classList.add(newClass);
       hideSlider(uploadImage, effectLevelContainer);
       setStyleLeft(sliderPin, sliderEffectInputDefault);
       setStyleWidth(sliderEffectLevelDepth, sliderEffectInputDefault);
-      window.changeAttribute.set(sliderEffect, 'value', sliderEffectInputDefault);
-      window.changeAttribute.remove(uploadImage, 'style');
+      sliderEffect.setAttribute('value', sliderEffectInputDefault);
+      uploadImage.removeAttribute('style');
     }
   });
 
   sliderPin.addEventListener('mousedown', function (evt) {
+    var ROUNDING_VALUE = 100;
     var startPinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
     var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
-    var roundingValue = 100;
+
     var onMouseMove = function (moveEvt) {
       var shift = getPinPoint(getLeftCoords(sliderLine), moveEvt) - startPinPoint;
-      var roundNewPinPointValue = roundNumber((startPinPoint + shift), roundingValue);
+      var roundNewPinPointValue = roundNumber((startPinPoint + shift), ROUNDING_VALUE);
+
       setStyleLeft(sliderPin, roundNewPinPointValue);
       setStyleWidth(sliderEffectLevelDepth, roundNewPinPointValue);
-      window.changeAttribute.set(sliderEffect, 'value', roundNewPinPointValue);
-      addAllFilters(startPinPoint, uploadImage, filterClassNames, filterCssProperties);
+      sliderEffect.setAttribute('value', roundNewPinPointValue);
+      addAllFilters(startPinPoint, uploadImage, filterProperties);
+
       startPinPoint = getPinPoint(getLeftCoords(sliderLine), moveEvt);
     };
+
     var onMouseUp = function () {
-      var roundStartPinPointValue = roundNumber(startPinPoint, roundingValue);
+      var roundStartPinPointValue = roundNumber(startPinPoint, ROUNDING_VALUE);
+
       setStyleLeft(sliderPin, roundStartPinPointValue);
       setStyleWidth(sliderEffectLevelDepth, roundStartPinPointValue);
-      window.changeAttribute.set(sliderEffect, 'value', roundStartPinPointValue);
-      addAllFilters(startPinPoint, uploadImage, filterClassNames, filterCssProperties);
+      sliderEffect.setAttribute('value', roundStartPinPointValue);
+      addAllFilters(startPinPoint, uploadImage, filterProperties);
+
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
     };
+
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });

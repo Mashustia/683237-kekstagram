@@ -7,9 +7,9 @@
    * @return {never|string[]} массив
    */
   var splitHashtagString = function (checkString) {
-    var anyNumberOfSpaces = /\s+/;
+    var ANY_NUMBER_OF_SPACES = /\s+/;
     if (checkString.value !== undefined) {
-      var hashtagArray = checkString.value.split(anyNumberOfSpaces);
+      var hashtagArray = checkString.value.split(ANY_NUMBER_OF_SPACES);
       var lastElement = hashtagArray[hashtagArray.length - 1];
       if (lastElement === '') {
         hashtagArray.pop();
@@ -17,6 +17,7 @@
     }
     return hashtagArray;
   };
+
   /**
    * Функция проверят, что длинна массива хештегов не больше 5
    * @function
@@ -31,6 +32,7 @@
     }
     return true;
   };
+
   /**
    * Функция проверят, что:
    * 1) Хештег начинается с решетки
@@ -42,48 +44,30 @@
    * @param {object} eventAttribute - evt.target
    */
   var checkHashtagLength = function (checkArray, eventAttribute) {
-    var hashtagSymbol = '#';
-    var minHashtagLength = 2;
-    var maxHashtagLength = 20;
-    var splitSymbol = /#/;
-    var hashtagSymbolCount = 1;
+    var HASHTAG_SYMBOL = '#';
+    var MIN_HASHTAG_LENGTH = 2;
+    var MAX_HASHTAG_LENGTH = 20;
+    var SPLIT_SYMBOL = /#/;
+    var HASHTAG_SYMBOL_COUNT = 1;
     checkArray.forEach(function (hashtag) {
-      if (hashtag.charAt(0) !== hashtagSymbol) {
-        setWarning(warningList.first, eventAttribute);
+      if (hashtag.charAt(0) !== HASHTAG_SYMBOL) {
+        eventAttribute.setCustomValidity(warningList.first);
         return false;
       }
-      if (hashtag.length < minHashtagLength) {
-        setWarning(warningList.second, eventAttribute);
+      if (hashtag.length < MIN_HASHTAG_LENGTH) {
+        eventAttribute.setCustomValidity(warningList.second);
         return false;
       }
-      if (hashtag.length > maxHashtagLength) {
-        setWarning(warningList.third, eventAttribute);
+      if (hashtag.length > MAX_HASHTAG_LENGTH) {
+        eventAttribute.setCustomValidity(warningList.third);
         return false;
       }
-      if ((hashtag.split(splitSymbol).length - 1) > hashtagSymbolCount) {
-        setWarning(warningList.sixth, eventAttribute);
+      if ((hashtag.split(SPLIT_SYMBOL).length - 1) > HASHTAG_SYMBOL_COUNT) {
+        eventAttribute.setCustomValidity(warningList.sixth);
         return false;
       }
       return true;
     });
-  };
-  /**
-   * Функция очищает CustomValidity
-   * @function
-   * @param {array} checkArray проверяемый массив
-   * @param {object} eventAttribute - evt.target
-   */
-  var clearCustomValidity = function (checkArray, eventAttribute) {
-    eventAttribute.setCustomValidity('');
-  };
-  /**
-   * Фнкция устанавливает setCustomValidity для поля
-   * @function
-   * @param {string} warningText текст предупреждения
-   * @param {object} eventAttribute - evt.target
-   */
-  var setWarning = function (warningText, eventAttribute) {
-    eventAttribute.setCustomValidity(warningText);
   };
 
   /**
@@ -96,11 +80,12 @@
   var checkHashtagRepeat = function (checkArray, eventAttribute) {
     var uniuniqueHashtagArray = chooseUniqueElements(checkArray);
     if (uniuniqueHashtagArray.length !== checkArray.length) {
-      setWarning(warningList.fifth, eventAttribute);
+      eventAttribute.setCustomValidity(warningList.fifth);
       return false;
     }
     return true;
   };
+
   /**
    * Функция создает из входящего масссива другой массив, содержащий только уникальные элементы
    * @function
@@ -115,6 +100,7 @@
     });
     return Object.keys(obj);
   };
+
   var warningList = {
     first: 'Хэш-тег должен начинаться с символа #',
     second: 'Хеш-тег не может состоять только из одной решётки',
@@ -123,20 +109,24 @@
     fifth: 'Хештеги не должны повторяться',
     sixth: 'Хэш-теги разделяются пробелами'
   };
+
   var hashtagInput = document.querySelector('.text__hashtags');
+
   hashtagInput.addEventListener('input', function (evt) {
     var hashtagArray = splitHashtagString(hashtagInput);
     var hashtagTarget = evt.target;
     if (hashtagArray !== '') {
-      clearCustomValidity(hashtagArray, hashtagTarget);
+      hashtagTarget.setCustomValidity('');
       checkHashtagRepeat(hashtagArray, hashtagTarget);
       checkHashtagLength(hashtagArray, hashtagTarget);
       checkHashtagCount(hashtagArray, hashtagTarget);
     }
   });
+
   hashtagInput.addEventListener('focus', function () {
     document.removeEventListener('keydown', window.editingOverlay.escClickHandler);
   });
+
   hashtagInput.addEventListener('blur', function () {
     document.addEventListener('keydown', window.editingOverlay.escClickHandler);
   });

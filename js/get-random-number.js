@@ -1,5 +1,4 @@
 'use strict';
-
 (function () {
   /**
    * Функция для генерации случайного числа в промежутке min, max.
@@ -11,5 +10,6 @@
   var getRandomNumber = function (min, max) {
     return Math.round(Math.random() * (max - min) + min);
   };
+
   window.getRandomNumber = getRandomNumber;
 })();

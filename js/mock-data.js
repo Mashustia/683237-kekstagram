@@ -1,5 +1,13 @@
 'use strict';
 (function () {
+  var ELEMENTS_IN_ARRAY_QUANTITY = 25;
+  var MIN_NUMBER = 1;
+  var MAX_NUMBER = 6;
+  var MIN_LIKES = 15;
+  var MAX_LIKES = 200;
+  var MIN_COMMENTS_COUNT = 1;
+  var MAX_COMMENTS_COUNT = 2;
+
   /**
    * Функция создает массив случайных комментариев
    * @function
@@ -10,10 +18,11 @@
   var randomComments = function (commentsArray, commentsNumber) {
     var commentsTotal = [];
     for (var i = 0; i < commentsNumber; i++) {
-      commentsTotal.push(commentsArray[window.getRandomNumber(minNumber, maxNumber) - 1]);
+      commentsTotal.push(commentsArray[window.getRandomNumber(MIN_NUMBER, MAX_NUMBER) - 1]);
     }
     return commentsTotal;
   };
+
   /**
    * Функция создает объект и пушит его в массив arrayToInsert.
    * @function
@@ -25,12 +34,13 @@
     var newObject = {
       url: 'photos/' + arrayElementNumber + '.jpg',
       id: 'img' + arrayElementNumber,
-      likes: window.getRandomNumber(minLikes, maxLikes),
-      comments: randomComments(testComments, window.getRandomNumber(minCommentsCount, maxCommentsCount)),
-      description: descriptionArray[window.getRandomNumber(minNumber, maxNumber) - 1]
+      likes: window.getRandomNumber(MIN_LIKES, MAX_LIKES),
+      comments: randomComments(testComments, window.getRandomNumber(MIN_COMMENTS_COUNT, MAX_COMMENTS_COUNT)),
+      description: descriptionArray[window.getRandomNumber(MIN_NUMBER, MAX_NUMBER) - 1]
     };
     return newObject;
   };
+
   /**
    * Функция пушит объект в массив
    * @function
@@ -40,6 +50,7 @@
   var pushNewObject = function (newObject, arrayToInsert) {
     arrayToInsert.push(newObject);
   };
+
   /**
    * Функция создает массив объектов.
    * @function
@@ -52,6 +63,7 @@
       pushNewObject((createObject(i, descriptionArray)), arrayToInsert);
     }
   };
+
   /**
    * Функция генерирует dom-объект.
    * @function
@@ -62,6 +74,7 @@
     var clone = templateElement.cloneNode(true);
     return clone;
   };
+
   /**
    * Функция записывает в объект данные из массива.
    * @function
@@ -76,6 +89,7 @@
     clone.querySelector('.picture__comments').textContent = arrayElement.comments.length;
     return clone;
   };
+
   /**
    * Функция записывает элементы в фрагмент.
    * @function
@@ -87,6 +101,7 @@
       fragment.appendChild(createPost(cloneElement(templateElement), userArray[i]));
     }
   };
+
   /**
    * Функция рисует фрагмент в блоке.
    * @function
@@ -105,6 +120,7 @@
     'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
     'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
   ];
+
   var testDescriptions = [
     'Тестим новую камеру!',
     'Затусили с друзьями на море',
@@ -113,25 +129,21 @@
     'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......',
     'Вот это тачка!'
   ];
+
   var objectsList = [];
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
   var picturesList = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
-  var elementsInArrayQuantity = 25;
-  var minNumber = 1;
-  var maxNumber = 6;
-  var minLikes = 15;
-  var maxLikes = 200;
-  var minCommentsCount = 1;
-  var maxCommentsCount = 2;
   /**
    * Создаю массив из 25 объектов и рисую его в блоке .picture.
    */
-  createArray(elementsInArrayQuantity, testDescriptions, objectsList);
+  createArray(ELEMENTS_IN_ARRAY_QUANTITY, testDescriptions, objectsList);
   writeElements(objectsList, pictureTemplate);
   drawFragment(picturesList, fragment);
+
   document.querySelector('.social__comment-count').classList.add('visually-hidden');
   document.querySelector('.comments-loader').classList.add('visually-hidden');
+
   window.mockData = {
     objectsList: objectsList,
     testComments: testComments,
