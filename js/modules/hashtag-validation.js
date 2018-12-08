@@ -115,50 +115,6 @@
     });
     return Object.keys(obj);
   };
-
-
-
-
-
-  /**
-   * Функция добавляет класс hidden тегу.
-   * @function
-   * @param {object} overlaySelector объект, которому нужно добавить класс hidden.
-   */
-  var closeEditingOverlay = function (overlaySelector) {
-    overlaySelector.classList.add('hidden');
-    document.removeEventListener('keydown', escClickHandler);
-  };
-  var imageEditingOverlay = document.querySelector('.img-upload__overlay');
-  /**
-   * Функция задает объекту значение '' (пустая строка).
-   * @function
-   * @param {object} uploadField задает объект, которому нужно присвоить пустую строку.
-   */
-  var clearInputValue = function (uploadField) {
-    uploadField.value = '';
-  };
-  /**
-   * Функция для закрытия формы редактирования изображения по клавише esc
-   * @function
-   * @param {event} evt - event
-   */
-  var escClickHandler = function (evt) {
-    if (evt.code === ESC_CODE) {
-      closeEditingOverlay(imageEditingOverlay);
-      clearInputValue(uploadFileField);
-    }
-  };
-  var uploadFileField = document.getElementById('upload-file');
-  var ESC_CODE = 'Escape';
-
-
-
-
-
-
-
-
   var warningList = {
     first: 'Хэш-тег должен начинаться с символа #',
     second: 'Хеш-тег не может состоять только из одной решётки',
@@ -179,14 +135,9 @@
     }
   });
   hashtagInput.addEventListener('focus', function () {
-    //
-    document.removeEventListener('keydown', escClickHandler);
-    //
+    document.removeEventListener('keydown', window.editingOverlay.escClickHandler);
   });
-  // вынести в отдельный файл хэндлеры
   hashtagInput.addEventListener('blur', function () {
-    //
-    document.addEventListener('keydown', escClickHandler);
-    //
+    document.addEventListener('keydown', window.editingOverlay.escClickHandler);
   });
 })();
