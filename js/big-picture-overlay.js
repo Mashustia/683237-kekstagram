@@ -35,14 +35,19 @@
     placeToRender.querySelector('.social__caption').textContent = userArray.description;
   };
 
-  var renderComment = function (arrayElement, templateElement) {
-    for (var i = 0; i < arrayElement.comments.length; i++) {
+  /**
+   * Функция создает комментарии
+   * @function
+   * @param {array} arrayParametr
+   * @param {object} templateElement
+   */
+  var renderComment = function (arrayParametr, templateElement) {
+    arrayParametr.comments.forEach(function (comment) {
       var commentItem = templateElement.cloneNode(true);
-      commentItem.querySelector('.social__picture').src = arrayElement.comments[i].avatar;
-      commentItem.querySelector('.social__text').textContent = arrayElement.comments[i].message;
+      commentItem.querySelector('.social__picture').src = comment.avatar;
+      commentItem.querySelector('.social__text').textContent = comment.message;
       fragment.appendChild(commentItem);
-    }
-    return commentItem;
+    });
   };
 
   /**
@@ -52,10 +57,10 @@
    * @return {object} элемент входящего массива, у которого id совпадает с id evt елемента
    */
   var getCurrentObject = function (dataArray, eventAttribute) {
-    getCurrentObject.selected = dataArray.filter(function (arrayItem) {
+    var currentObject = dataArray.filter(function (arrayItem) {
       return arrayItem.url === eventAttribute;
     });
-    return getCurrentObject.selected;
+    return currentObject;
   };
 
   /**
@@ -71,10 +76,21 @@
     commentsList.appendChild(fragment);
   };
 
+  /**
+   * Функция выполняется в случае успешной загрузки данных с сервера
+   * @function
+   * @param {array} pictureData
+   */
   var onLoad = function (pictureData) {
     pictureDataList = pictureData;
   };
 
+  /**
+   * Функция выполняется в случае ошибки загрузки данных с сервера
+   * @function
+   * @param {string/object} errorMessage
+   * @return {boolean} true/false
+   */
   var onError = function (errorMessage) {
     if (errorMessage) {
       return false;

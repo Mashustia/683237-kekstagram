@@ -3,14 +3,14 @@
   var ESC_CODE = 'Escape';
   var ENTER_CODE = 'Enter';
 
-  var escapeButton = function (evt) {
+  var escape = function (evt) {
     if (evt.code === ESC_CODE) {
       return true;
     }
     return false;
   };
 
-  var enterButton = function (evt) {
+  var enter = function (evt) {
     if (evt.code === ENTER_CODE) {
       return true;
     }
@@ -18,7 +18,7 @@
   };
 
   window.buttonCheck = {
-    escape: escapeButton,
-    enter: enterButton
+    escape: escape,
+    enter: enter
   };
 })();
