@@ -1,7 +1,5 @@
 'use strict';
 (function () {
-  var SERVER_ADDRESS_LENGTH = 34;
-
   /**
    * Функция создает обработчик событий для клавиши escape.
    * @function
@@ -20,7 +18,7 @@
    */
   var bigPictureEnterClickHandler = function (evt) {
     if (window.buttonCheck.enter(evt)) {
-      fillBigPicture(getCurrentObject(pictureDataList, evt.target.children[0].src.slice(SERVER_ADDRESS_LENGTH)));
+      fillBigPicture(getCurrentObject(pictureDataList, evt.target.children[0].attributes.src.nodeValue));
     }
   };
 
@@ -112,7 +110,7 @@
 
   picturesList.addEventListener('click', function (evt) {
     if (evt.target.classList.contains('picture__img')) {
-      fillBigPicture(getCurrentObject(pictureDataList, evt.target.src.slice(SERVER_ADDRESS_LENGTH)));
+      fillBigPicture(getCurrentObject(pictureDataList, evt.target.attributes.src.nodeValue));
       bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
       bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
     }

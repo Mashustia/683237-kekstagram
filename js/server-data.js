@@ -53,8 +53,7 @@
   };
 
   var errorPictureData = function (errorMessage) {
-    //console.log('Error');
-    //console.log(errorMessage);
+    errorPictureData.error = errorMessage;
   };
 
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
