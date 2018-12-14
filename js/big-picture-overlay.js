@@ -69,6 +69,7 @@
    */
   var fillBigPicture = function (currentObject) {
     bigPicture.classList.remove('hidden');
+    body.classList.add('modal-open');
     document.addEventListener('keydown', bigPictureEscClickHandler);
     renderBigPicture(currentObject[0], bigPicture);
     renderComment(currentObject[0], commentTemplate);
@@ -110,6 +111,7 @@
 
   var removeBigPictureClickHandlers = function () {
     bigPicture.classList.add('hidden');
+    body.removeAttribute('class');
     document.removeEventListener('keydown', bigPictureEscClickHandler);
     bigPicture.removeEventListener('click', bigPictureOverlayClickHandler);
   };
@@ -121,6 +123,7 @@
   var picturesList = document.querySelector('.pictures');
   var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
   var pictureDataList = {};
+  var body = document.querySelector('body');
 
   window.server.load(onLoad, onError);
 
