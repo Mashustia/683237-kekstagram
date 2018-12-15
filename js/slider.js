@@ -1,5 +1,11 @@
 'use strict';
 (function () {
+  var CONTAINER_WIDTH = 453;
+  var PROPORTION_MAX_VALUE = 100;
+  var PROPORTION_MIN_VALUE = 0;
+  var EFFECT_NAME_FIRST_LETTER_NUMBER = 7;
+  var EFFECTS_PREVIEW = 'effects__preview--';
+
   /**
    * Функция рассчитывает интенсивность эффекта (Хром, Сепия, Фобос...) в зависимости от положения пина.
    * @function
@@ -8,9 +14,6 @@
    * @return {number} возвращает интенсивность фильтра от 0 до 100.
    */
   var getPinPoint = function (startingCoordinate, clickPoint) {
-    var CONTAINER_WIDTH = 453;
-    var PROPORTION_MAX_VALUE = 100;
-    var PROPORTION_MIN_VALUE = 0;
     var saturationValue = (clickPoint.clientX - startingCoordinate) * PROPORTION_MAX_VALUE / CONTAINER_WIDTH;
     if (saturationValue < PROPORTION_MIN_VALUE) {
       saturationValue = PROPORTION_MIN_VALUE;
@@ -40,7 +43,6 @@
    * @return {number} возвращает интенсивность фильтра в прцентах от filterMaxValue.
    */
   var returnPercent = function (PinPointValue, filterMaxValue) {
-    var PROPORTION_MAX_VALUE = 100;
     var percent = PinPointValue * (filterMaxValue / PROPORTION_MAX_VALUE);
     return percent;
   };
@@ -102,8 +104,6 @@
    * @return {string} возвращает измененный id.
    */
   var sliceIdName = function (checkedEvent) {
-    var EFFECT_NAME_FIRST_LETTER_NUMBER = 7;
-    var EFFECTS_PREVIEW = 'effects__preview--';
     return EFFECTS_PREVIEW + checkedEvent.target.id.slice(EFFECT_NAME_FIRST_LETTER_NUMBER);
   };
 
@@ -138,8 +138,7 @@
    * @param {number} styleValue - значение стиля
    */
   var setStyleLeft = function (tagName, styleValue) {
-    var PERCENT_SIGN = '%';
-    tagName.style.left = styleValue + PERCENT_SIGN;
+    tagName.style.left = styleValue + '%';
   };
 
   /**
@@ -149,8 +148,7 @@
    * @param {number} styleValue - значение стиля
    */
   var setStyleWidth = function (tagName, styleValue) {
-    var PERCENT_SIGN = '%';
-    tagName.style.width = styleValue + PERCENT_SIGN;
+    tagName.style.width = styleValue + '%';
   };
 
   var filterProperties = {
@@ -206,7 +204,7 @@
       var sliderEffectInputDefault = '100';
       var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
 
-      uploadImage.className = '';
+      uploadImage.removeAttribute('class');
       uploadImage.classList.add(newClass);
       hideSlider(uploadImage, effectLevelContainer);
       setStyleLeft(sliderPin, sliderEffectInputDefault);

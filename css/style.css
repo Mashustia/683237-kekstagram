@@ -752,6 +752,10 @@ main {
   border-radius: 5px;
 }
 
+.text__hashtags:invalid {
+  border-color: #ff8282;
+}
+
 .text__description {
   width: 450px;
   height: 100px;
@@ -764,6 +768,10 @@ main {
   color: #000000;
 
   border-radius: 5px;
+}
+
+.text__description:invalid {
+  border-color: #ff8282;
 }
 
 
@@ -1272,7 +1280,7 @@ main {
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 1;
+  z-index: 10;
 
   background-color: rgba(0, 0, 0, 0.8);
 }

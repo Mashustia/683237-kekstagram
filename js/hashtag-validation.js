@@ -124,10 +124,10 @@
   });
 
   hashtagInput.addEventListener('focus', function () {
-    document.removeEventListener('keydown', window.editingOverlay.escClickHandler);
+    document.removeEventListener('keydown', window.editingOverlay.esc);
   });
 
   hashtagInput.addEventListener('blur', function () {
-    document.addEventListener('keydown', window.editingOverlay.escClickHandler);
+    document.addEventListener('keydown', window.editingOverlay.esc);
   });
 })();

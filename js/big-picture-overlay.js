@@ -7,19 +7,18 @@
    */
   var bigPictureEscClickHandler = function (evt) {
     if (window.buttonCheck.escape(evt)) {
-      bigPicture.classList.add('hidden');
-      document.removeEventListener('keydown', bigPictureEscClickHandler);
+      removeBigPictureClickHandlers();
     }
   };
 
   /**
-   * Функция создает обработчик событий для клавиши escape.
+   * Функция создает обработчик событий для клавиши enter.
    * @function
    * @param {object} evt
    */
   var bigPictureEnterClickHandler = function (evt) {
     if (window.buttonCheck.enter(evt)) {
-      fillBigPicture(getCurrentObject(window.mockData.objectsList, evt.target.children[0]));
+      fillBigPicture(getCurrentObject(pictureDataList, evt.target.children[0].attributes.src.nodeValue));
     }
   };
 
@@ -37,20 +36,18 @@
   };
 
   /**
-   * Функция для генерации dom-объекта и записи в него данных из входящего массива.
+   * Функция создает комментарии
    * @function
-   * @param {object} arrayElement элемент входящего массива.
-   * @param {object} templateElement темплейт для копирования.
-   * @return {Node} элемент списка с заполненной разметкой.
+   * @param {array} arrayParametr
+   * @param {object} templateElement
    */
-  var renderComment = function (arrayElement, templateElement) {
-    for (var i = 0; i < arrayElement.comments.length; i++) {
+  var renderComment = function (arrayParametr, templateElement) {
+    arrayParametr.comments.forEach(function (comment) {
       var commentItem = templateElement.cloneNode(true);
-      commentItem.querySelector('.social__picture').src = 'img/avatar-' + window.getRandomNumber(1, 6) + '.svg';
-      commentItem.querySelector('.social__text').textContent = arrayElement.comments[i];
+      commentItem.querySelector('.social__picture').src = comment.avatar;
+      commentItem.querySelector('.social__text').textContent = comment.message;
       fragment.appendChild(commentItem);
-    }
-    return commentItem;
+    });
   };
 
   /**
@@ -60,10 +57,10 @@
    * @return {object} элемент входящего массива, у которого id совпадает с id evt елемента
    */
   var getCurrentObject = function (dataArray, eventAttribute) {
-    getCurrentObject.selected = dataArray.filter(function (arrayItem) {
-      return arrayItem.id === eventAttribute.id;
+    var currentObject = dataArray.filter(function (arrayItem) {
+      return arrayItem.url === eventAttribute;
     });
-    return getCurrentObject.selected;
+    return currentObject;
   };
 
   /**
@@ -72,11 +69,51 @@
    */
   var fillBigPicture = function (currentObject) {
     bigPicture.classList.remove('hidden');
+    body.classList.add('modal-open');
     document.addEventListener('keydown', bigPictureEscClickHandler);
     renderBigPicture(currentObject[0], bigPicture);
     renderComment(currentObject[0], commentTemplate);
     commentsList.innerHTML = '';
     commentsList.appendChild(fragment);
+  };
+
+  /**
+   * Функция выполняется в случае успешной загрузки данных с сервера
+   * @function
+   * @param {array} pictureData
+   */
+  var onLoad = function (pictureData) {
+    pictureDataList = pictureData;
+  };
+
+  /**
+   * Функция выполняется в случае ошибки загрузки данных с сервера
+   * @function
+   * @param {string/object} errorMessage
+   * @return {boolean} true/false
+   */
+  var onError = function (errorMessage) {
+    if (errorMessage) {
+      return false;
+    }
+    return true;
+  };
+
+  var bigPictureCloseButtonClickHandler = function () {
+    removeBigPictureClickHandlers();
+  };
+
+  var bigPictureOverlayClickHandler = function (bigPictureOverlayClickEvt) {
+    if (bigPictureOverlayClickEvt.target.classList.contains('big-picture')) {
+      removeBigPictureClickHandlers();
+    }
+  };
+
+  var removeBigPictureClickHandlers = function () {
+    bigPicture.classList.add('hidden');
+    body.removeAttribute('class');
+    document.removeEventListener('keydown', bigPictureEscClickHandler);
+    bigPicture.removeEventListener('click', bigPictureOverlayClickHandler);
   };
 
   var bigPicture = document.querySelector('.big-picture');
@@ -85,21 +122,24 @@
   var fragment = document.createDocumentFragment();
   var picturesList = document.querySelector('.pictures');
   var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
+  var pictureDataList = {};
+  var body = document.querySelector('body');
+
+  window.server.load(onLoad, onError);
 
   picturesList.addEventListener('click', function (evt) {
     if (evt.target.classList.contains('picture__img')) {
-      fillBigPicture(getCurrentObject(window.mockData.objectsList, evt.target));
+      fillBigPicture(getCurrentObject(pictureDataList, evt.target.attributes.src.nodeValue));
+      bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
+      bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
     }
   });
 
   picturesList.addEventListener('keydown', function (evt) {
     if (evt.target.classList.contains('picture')) {
       bigPictureEnterClickHandler(evt);
+      bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
+      bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
     }
-  });
-
-  bigPictureCloseButton.addEventListener('click', function () {
-    bigPicture.classList.add('hidden');
-    document.removeEventListener('keydown', bigPictureEscClickHandler);
   });
 })();
