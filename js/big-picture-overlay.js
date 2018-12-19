@@ -1,5 +1,6 @@
 'use strict';
 (function () {
+  var DEFAULT_COMMENTS_VALUE = '5';
   /**
    * Функция создает обработчик событий для клавиши escape.
    * @function
@@ -33,6 +34,11 @@
     placeToRender.querySelector('.likes-count').textContent = userArray.likes;
     placeToRender.querySelector('.comments-count').textContent = userArray.comments.length;
     placeToRender.querySelector('.social__caption').textContent = userArray.description;
+    if (userArray.comments.length < 5) {
+      placeToRender.querySelector('.comments-count--shown').textContent = userArray.comments.length;
+    } else {
+      placeToRender.querySelector('.comments-count--shown').textContent = DEFAULT_COMMENTS_VALUE;
+    }
   };
 
   /**
@@ -111,14 +117,49 @@
 
   var removeBigPictureClickHandlers = function () {
     bigPicture.classList.add('hidden');
+    commentsLoader.classList.remove('hidden');
     body.removeAttribute('class');
     document.removeEventListener('keydown', bigPictureEscClickHandler);
     bigPicture.removeEventListener('click', bigPictureOverlayClickHandler);
+    commentsLoader.removeEventListener('click', commentsLoaderClickHandler);
+  };
+
+  /**
+   * Функция открывает комментарии по клику на .comments-loader
+   * @function
+   */
+  var commentsLoaderClickHandler = function () {
+    var comments = bigPicture.querySelectorAll('.social__comment');
+    var commentsShown = bigPicture.querySelector('.comments-count--shown');
+    var commentsCount = parseInt(commentsShown.textContent, 10) + 5;
+    if (commentsCount >= comments.length) {
+      commentsCount = comments.length;
+      commentsLoader.classList.add('hidden');
+    }
+    Array.from(comments).slice(commentsShown.textContent, commentsCount).forEach(function (comment) {
+      comment.removeAttribute('style');
+    });
+    commentsShown.textContent = commentsCount;
+  };
+
+  /**
+   * Функция скрывает комментарии после DEFAULT_COMMENTS_VALUE
+   * @function
+   */
+  var hideComments = function () {
+    var comments = bigPicture.querySelectorAll('.social__comment');
+    Array.from(comments).slice(DEFAULT_COMMENTS_VALUE).forEach(function (comment) {
+      comment.style.display = 'none';
+    });
+    if (comments.length <= DEFAULT_COMMENTS_VALUE) {
+      commentsLoader.classList.add('hidden');
+    }
   };
 
   var bigPicture = document.querySelector('.big-picture');
   var bigPictureCloseButton = bigPicture.querySelector('.big-picture__cancel');
   var commentsList = bigPicture.querySelector('.social__comments');
+  var commentsLoader = bigPicture.querySelector('.comments-loader');
   var fragment = document.createDocumentFragment();
   var picturesList = document.querySelector('.pictures');
   var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
@@ -132,14 +173,18 @@
       fillBigPicture(getCurrentObject(pictureDataList, evt.target.attributes.src.nodeValue));
       bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
       bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
+      hideComments();
+      commentsLoader.addEventListener('click', commentsLoaderClickHandler);
     }
   });
 
   picturesList.addEventListener('keydown', function (evt) {
-    if (evt.target.classList.contains('picture')) {
+    if (evt.target.classList.contains('picture') && window.buttonCheck.enter(evt)) {
       bigPictureEnterClickHandler(evt);
       bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
       bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
+      hideComments();
+      commentsLoader.addEventListener('click', commentsLoaderClickHandler);
     }
   });
 })();
