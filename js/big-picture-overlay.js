@@ -1,6 +1,7 @@
 'use strict';
 (function () {
   var DEFAULT_COMMENTS_VALUE = '5';
+  var NEXT_COMMENT_VALUE = '5';
   /**
    * Функция создает обработчик событий для клавиши escape.
    * @function
@@ -131,7 +132,7 @@
   var commentsLoaderClickHandler = function () {
     var comments = bigPicture.querySelectorAll('.social__comment');
     var commentsShown = bigPicture.querySelector('.comments-count--shown');
-    var commentsCount = parseInt(commentsShown.textContent, 10) + 5;
+    var commentsCount = parseInt(commentsShown.textContent, 10) + parseInt(NEXT_COMMENT_VALUE, 10);
     if (commentsCount >= comments.length) {
       commentsCount = comments.length;
       commentsLoader.classList.add('hidden');

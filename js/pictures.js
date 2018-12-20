@@ -101,28 +101,28 @@
 
     document.querySelector('.img-filters').classList.remove('img-filters--inactive');
 
-    popular.addEventListener('click', function (popularClickEvt) {
+    popular.addEventListener('click', window.debounce(function (popularClickEvt) {
       removeOldPictures();
       writeElements(pictureData, pictureTemplate);
       drawFragment(picturesList, fragment);
       activeButtonClass(popularClickEvt);
-    });
+    }));
 
-    newPictures.addEventListener('click', function (newClickEvt) {
+    newPictures.addEventListener('click', window.debounce(function (newClickEvt) {
       var newPicturesArray = sortRandom(pictureData.slice()).slice(0, 10);
       removeOldPictures();
       writeElements(newPicturesArray, pictureTemplate);
       drawFragment(picturesList, fragment);
       activeButtonClass(newClickEvt);
-    });
+    }));
 
-    discussed.addEventListener('click', function (discussedClickEvt) {
+    discussed.addEventListener('click', window.debounce(function (discussedClickEvt) {
       var discussedArray = pictureData.slice().sort(maxToMin);
       removeOldPictures();
       writeElements(discussedArray, pictureTemplate);
       drawFragment(picturesList, fragment);
       activeButtonClass(discussedClickEvt);
-    });
+    }));
   };
 
   var errorPictureData = function (errorMessage) {
