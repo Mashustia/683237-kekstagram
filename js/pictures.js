@@ -87,7 +87,7 @@
     });
     evt.target.classList.add('img-filters__button--active');
   };
-  
+
   var removeOldPictures = function () {
     var pictureArray = pictures.querySelectorAll('.picture');
     Array.from(pictureArray).forEach(function (picture) {
