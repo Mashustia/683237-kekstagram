@@ -19,26 +19,12 @@
   };
 
   /**
-   * Функция проверят, что длинна массива хештегов не больше 5
-   * @function
-   * @param {array} checkArray проверяемый массив
-   * @param {object} eventAttribute - evt.target
-   * @return {boolean} false в случае ошибки в тегах, true, когда теги верны
-   */
-  var checkHashtagCount = function (checkArray, eventAttribute) {
-    if (checkArray.length > 5) {
-      eventAttribute.setCustomValidity(warningList.fourth);
-      return false;
-    }
-    return true;
-  };
-
-  /**
    * Функция проверят, что:
    * 1) Хештег начинается с решетки
    * 2) Хештег не короче двух символов
    * 3) Хештег не длиннее двадцати символов
-   * 4) Хэш-теги разделяются пробелами
+   * 4) Хештегов не может быть больше пяти
+   * 5) Хэштеги разделяются пробелами
    * @function
    * @param {array} checkArray проверяемый массив
    * @param {object} eventAttribute - evt.target
@@ -47,26 +33,18 @@
     var HASHTAG_SYMBOL = '#';
     var MIN_HASHTAG_LENGTH = 2;
     var MAX_HASHTAG_LENGTH = 20;
-    var SPLIT_SYMBOL = /#/;
-    var HASHTAG_SYMBOL_COUNT = 1;
-    checkArray.forEach(function (hashtag) {
+    checkArray.forEach(function (hashtag, index) {
       if (hashtag.charAt(0) !== HASHTAG_SYMBOL) {
         eventAttribute.setCustomValidity(warningList.first);
-        return false;
-      }
-      if (hashtag.length < MIN_HASHTAG_LENGTH) {
+      } else if (hashtag.length < MIN_HASHTAG_LENGTH) {
         eventAttribute.setCustomValidity(warningList.second);
-        return false;
-      }
-      if (hashtag.length > MAX_HASHTAG_LENGTH) {
+      } else if (hashtag.length > MAX_HASHTAG_LENGTH) {
         eventAttribute.setCustomValidity(warningList.third);
-        return false;
-      }
-      if ((hashtag.split(SPLIT_SYMBOL).length - 1) > HASHTAG_SYMBOL_COUNT) {
+      } else if (index > 4) {
+        eventAttribute.setCustomValidity(warningList.fourth);
+      } else if (hashtag.includes(HASHTAG_SYMBOL, 1)) {
         eventAttribute.setCustomValidity(warningList.sixth);
-        return false;
       }
-      return true;
     });
   };
 
@@ -119,7 +97,6 @@
       hashtagTarget.setCustomValidity('');
       checkHashtagRepeat(hashtagArray, hashtagTarget);
       checkHashtagLength(hashtagArray, hashtagTarget);
-      checkHashtagCount(hashtagArray, hashtagTarget);
     }
   });
 

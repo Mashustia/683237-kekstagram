@@ -35,7 +35,7 @@
     placeToRender.querySelector('.likes-count').textContent = userArray.likes;
     placeToRender.querySelector('.comments-count').textContent = userArray.comments.length;
     placeToRender.querySelector('.social__caption').textContent = userArray.description;
-    if (userArray.comments.length < 5) {
+    if (userArray.comments.length < DEFAULT_COMMENTS_VALUE) {
       placeToRender.querySelector('.comments-count--shown').textContent = userArray.comments.length;
     } else {
       placeToRender.querySelector('.comments-count--shown').textContent = DEFAULT_COMMENTS_VALUE;
@@ -132,15 +132,15 @@
   var commentsLoaderClickHandler = function () {
     var comments = bigPicture.querySelectorAll('.social__comment');
     var commentsShown = bigPicture.querySelector('.comments-count--shown');
-    var commentsCount = parseInt(commentsShown.textContent, 10) + parseInt(NEXT_COMMENT_VALUE, 10);
-    if (commentsCount >= comments.length) {
-      commentsCount = comments.length;
+    var count = parseInt(commentsShown.textContent, 10) + parseInt(NEXT_COMMENT_VALUE, 10);
+    if (count >= comments.length) {
+      count = comments.length;
       commentsLoader.classList.add('hidden');
     }
-    Array.from(comments).slice(commentsShown.textContent, commentsCount).forEach(function (comment) {
+    Array.from(comments).slice(commentsShown.textContent, count).forEach(function (comment) {
       comment.removeAttribute('style');
     });
-    commentsShown.textContent = commentsCount;
+    commentsShown.textContent = count;
   };
 
   /**
