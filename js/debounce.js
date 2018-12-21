@@ -1,12 +1,14 @@
 'use strict';
 
 (function () {
-  /**
-   * Функция задает debounce для события
-   * @type {number}
-   */
   var DEBOUNCE_INTERVAL = 500; // ms
 
+  /**
+   * Функция задает интервал срабатывания для события
+   * @function
+   * @param {func} cb функция, дя которой задается интервал срабатывания
+   * @return {func} Timeout для входящей функции
+   */
   window.debounce = function (cb) {
     var lastTimeout = null;
 

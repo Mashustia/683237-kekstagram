@@ -49,6 +49,7 @@
 
   /**
    * Функция случайно сортировки массива
+   * @function
    * @param {array} incomingArray массив для сортировки
    * @return {array}
    */
@@ -66,6 +67,7 @@
 
   /**
    * Функция находит числовую разницу между значениями двух объектов
+   * @function
    * @param {object} pictureA
    * @param {object} pictureB
    * @return {number}
@@ -79,15 +81,18 @@
 
   /**
    * Функция добавляет кнопке класс img-filters__button--active
+   * @function
    * @param {evt} evt
    */
-  var activeButtonClass = function (evt) {
-    Array.from(filtersContainer.querySelectorAll('.img-filters__button')).forEach(function (button) {
-      button.classList.remove('img-filters__button--active');
-    });
+  var addActiveButtonClass = function (evt) {
+    filtersContainer.querySelector('.img-filters__button--active').classList.remove('img-filters__button--active');
     evt.target.classList.add('img-filters__button--active');
   };
 
+  /**
+   * Функция удаляет из разметки фотографии .picture
+   * @function
+   */
   var removeOldPictures = function () {
     var pictureArray = pictures.querySelectorAll('.picture');
     Array.from(pictureArray).forEach(function (picture) {
@@ -95,42 +100,72 @@
     });
   };
 
+  /**
+   * Функция фильтрует изображения согласно входящим параметрам
+   * @function
+   * @param {array} picturesArray массив с данными о фотографиях, которые необходимо отрисовать
+   * @param {evt} evt событие
+   */
+  var filterImage = function (picturesArray, evt) {
+    removeOldPictures();
+    writeElements(picturesArray, pictureTemplate);
+    drawFragment(picturesContainer, fragment);
+    addActiveButtonClass(evt);
+  };
+
+  /**
+   * Функция показывает блок .img-filters после загрузки всех фотографий с сервера.
+   * @function
+   * @param {array} picturesArray массив с данными о фотографиях с сервера.
+   */
+  var checkImageLoading = function (picturesArray) {
+    var counter = 0;
+    Array.from(pictures.querySelectorAll('.picture')).forEach(function (picture) {
+      picture.children[0].onload = function () {
+        counter += 1;
+        if (counter === picturesArray.length) {
+          document.querySelector('.img-filters').classList.remove('img-filters--inactive');
+        }
+      };
+    });
+  };
+
+  /**
+   * Функция выполняется, если данные с сервера получены успешно.
+   * @function
+   * @param {array} pictureData массив с данными о фотографиях с сервера.
+   */
   var successPictureData = function (pictureData) {
     writeElements(pictureData, pictureTemplate);
-    drawFragment(picturesList, fragment);
-
-    document.querySelector('.img-filters').classList.remove('img-filters--inactive');
+    drawFragment(picturesContainer, fragment);
+    checkImageLoading(pictureData);
 
     popular.addEventListener('click', window.debounce(function (popularClickEvt) {
-      removeOldPictures();
-      writeElements(pictureData, pictureTemplate);
-      drawFragment(picturesList, fragment);
-      activeButtonClass(popularClickEvt);
+      filterImage(pictureData, popularClickEvt);
     }));
 
     newPictures.addEventListener('click', window.debounce(function (newClickEvt) {
       var newPicturesArray = sortRandom(pictureData.slice()).slice(0, 10);
-      removeOldPictures();
-      writeElements(newPicturesArray, pictureTemplate);
-      drawFragment(picturesList, fragment);
-      activeButtonClass(newClickEvt);
+      filterImage(newPicturesArray, newClickEvt);
     }));
 
     discussed.addEventListener('click', window.debounce(function (discussedClickEvt) {
       var discussedArray = pictureData.slice().sort(maxToMin);
-      removeOldPictures();
-      writeElements(discussedArray, pictureTemplate);
-      drawFragment(picturesList, fragment);
-      activeButtonClass(discussedClickEvt);
+      filterImage(discussedArray, discussedClickEvt);
     }));
   };
 
+  /**
+   * Функция выполняется в случае ошибки получения данных с сервера
+   * @function
+   * @param {string/object} errorMessage
+   */
   var errorPictureData = function (errorMessage) {
     errorPictureData.error = errorMessage;
   };
 
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
-  var picturesList = document.querySelector('.pictures');
+  var picturesContainer = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
 
   window.server.load(successPictureData, errorPictureData);
