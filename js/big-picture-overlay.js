@@ -1,5 +1,7 @@
 'use strict';
 (function () {
+  var DEFAULT_COMMENTS_VALUE = '5';
+  var NEXT_COMMENT_VALUE = '5';
   /**
    * Функция создает обработчик событий для клавиши escape.
    * @function
@@ -33,6 +35,11 @@
     placeToRender.querySelector('.likes-count').textContent = userArray.likes;
     placeToRender.querySelector('.comments-count').textContent = userArray.comments.length;
     placeToRender.querySelector('.social__caption').textContent = userArray.description;
+    if (userArray.comments.length < DEFAULT_COMMENTS_VALUE) {
+      placeToRender.querySelector('.comments-count--shown').textContent = userArray.comments.length;
+    } else {
+      placeToRender.querySelector('.comments-count--shown').textContent = DEFAULT_COMMENTS_VALUE;
+    }
   };
 
   /**
@@ -111,35 +118,74 @@
 
   var removeBigPictureClickHandlers = function () {
     bigPicture.classList.add('hidden');
+    commentsLoader.classList.remove('hidden');
     body.removeAttribute('class');
     document.removeEventListener('keydown', bigPictureEscClickHandler);
     bigPicture.removeEventListener('click', bigPictureOverlayClickHandler);
+    commentsLoader.removeEventListener('click', commentsLoaderClickHandler);
+  };
+
+  /**
+   * Функция открывает комментарии по клику на .comments-loader
+   * @function
+   */
+  var commentsLoaderClickHandler = function () {
+    var comments = bigPicture.querySelectorAll('.social__comment');
+    var commentsShown = bigPicture.querySelector('.comments-count--shown');
+    var count = parseInt(commentsShown.textContent, 10) + parseInt(NEXT_COMMENT_VALUE, 10);
+    if (count >= comments.length) {
+      count = comments.length;
+      commentsLoader.classList.add('hidden');
+    }
+    Array.from(comments).slice(commentsShown.textContent, count).forEach(function (comment) {
+      comment.removeAttribute('style');
+    });
+    commentsShown.textContent = count;
+  };
+
+  /**
+   * Функция скрывает комментарии после DEFAULT_COMMENTS_VALUE
+   * @function
+   */
+  var hideComments = function () {
+    var comments = bigPicture.querySelectorAll('.social__comment');
+    Array.from(comments).slice(DEFAULT_COMMENTS_VALUE).forEach(function (comment) {
+      comment.style.display = 'none';
+    });
+    if (comments.length <= DEFAULT_COMMENTS_VALUE) {
+      commentsLoader.classList.add('hidden');
+    }
   };
 
   var bigPicture = document.querySelector('.big-picture');
   var bigPictureCloseButton = bigPicture.querySelector('.big-picture__cancel');
   var commentsList = bigPicture.querySelector('.social__comments');
+  var commentsLoader = bigPicture.querySelector('.comments-loader');
   var fragment = document.createDocumentFragment();
-  var picturesList = document.querySelector('.pictures');
+  var picturesContainer = document.querySelector('.pictures');
   var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
   var pictureDataList = {};
   var body = document.querySelector('body');
 
   window.server.load(onLoad, onError);
 
-  picturesList.addEventListener('click', function (evt) {
+  picturesContainer.addEventListener('click', function (evt) {
     if (evt.target.classList.contains('picture__img')) {
       fillBigPicture(getCurrentObject(pictureDataList, evt.target.attributes.src.nodeValue));
       bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
       bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
+      hideComments();
+      commentsLoader.addEventListener('click', commentsLoaderClickHandler);
     }
   });
 
-  picturesList.addEventListener('keydown', function (evt) {
-    if (evt.target.classList.contains('picture')) {
+  picturesContainer.addEventListener('keydown', function (evt) {
+    if (evt.target.classList.contains('picture') && window.buttonCheck.enter(evt)) {
       bigPictureEnterClickHandler(evt);
       bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
       bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
+      hideComments();
+      commentsLoader.addEventListener('click', commentsLoaderClickHandler);
     }
   });
 })();

@@ -31,7 +31,6 @@
     resetForm();
   };
 
-
   var successPopupRemoveClickHandlers = function () {
     document.removeEventListener('keydown', successPopupCloseKey);
     main.querySelector('.success__button').removeEventListener('click', successPopupButtonClickHandler);

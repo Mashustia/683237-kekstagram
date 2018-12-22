@@ -153,7 +153,8 @@
           </div>
 
           <!-- Комментарии к изображению -->
-          <div class="social__comment-count">5 из <span class="comments-count">125</span> комментариев</div>
+          <!--<div class="social__comment-count">5 из <span class="comments-count">125</span> комментариев</div>-->
+          <div class="social__comment-count"><span class="comments-count--shown">5</span> из <span class="comments-count">125</span> комментариев</div>
           <ul class="social__comments">
           </ul>
 
@@ -237,7 +238,8 @@
   </template>
 
   <script src="js/backend.js"></script>
-  <script src="js/server-data.js"></script>
+  <script src="js/debounce.js"></script>
+  <script src="js/pictures.js"></script>
   <script src="js/editing-overlay.js"></script>
   <script src="js/button-check.js"></script>
   <script src="js/hashtag-validation.js"></script>
