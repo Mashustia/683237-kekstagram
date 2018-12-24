@@ -34,7 +34,7 @@
 
               <!-- Изначальное состояние поля для загрузки изображения -->
               <fieldset class="img-upload__start">
-                <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" required>
+                <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" accept="image/jpeg, image/png, image/gif, image/jpg" required>
                 <label for="upload-file" class="img-upload__label  img-upload__control">Загрузить</label>
               </fieldset>
 
@@ -46,13 +46,13 @@
                     <!-- Изменение размера изображения -->
                     <fieldset class="img-upload__scale  scale">
                       <button type="button" class="scale__control  scale__control--smaller">Уменьшить</button>
-                      <input type="text" class="scale__control  scale__control--value" value="55%" title="Image Scale" name="scale" readonly>
+                      <input type="text" class="scale__control  scale__control--value" value="100%" title="Image Scale" name="scale" readonly>
                       <button type="button" class="scale__control  scale__control--bigger">Увеличить</button>
                     </fieldset>
 
                     <!-- Предварительный просмотр изображения -->
                     <div class="img-upload__preview">
-                      <img src="img/upload-default-image.jpg" alt="Предварительный просмотр фотографии">
+                      <img src="" alt="Предварительный просмотр фотографии">
                     </div>
 
                     <!-- Изменение глубины эффекта, накладываемого на изображение -->

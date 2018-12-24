@@ -1,5 +1,12 @@
 'use strict';
 (function () {
+  var IMAGE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+  var IMAGE_SCALE_CHANGE = 25;
+  var PERCENT_SYMBOL = '%';
+  var IMG_MAX_SIZE = 100;
+  var IMG_MIN_SIZE = 25;
+  var PROPORTION_MAX_VALUE = 100;
+
   /**
    * Функция для закрытия формы редактирования изображения по клавише esc
    * @function
@@ -18,9 +25,12 @@
   var resetForm = function () {
     imageUploadOverlay.classList.add('hidden');
     document.removeEventListener('keydown', escClickHandler);
+    plus.removeEventListener('click', plusClickHandler);
+    minus.removeEventListener('click', minusClickHandler);
     uploadFileField.value = '';
     form.reset();
     uploadImage.removeAttribute('class');
+    uploadImage.src = '';
   };
 
   /**
@@ -158,6 +168,34 @@
     newFileButton.addEventListener('click', newFileButtonClickHandler, {once: true});
   };
 
+  /**
+   * Функция переводит масштаб картинки из процентов в единицы
+   * @function
+   * @param {number} valueInPercent масштаб картинки в процентах
+   * @return {number}
+   */
+  var calculateScale = function (valueInPercent) {
+    return valueInPercent.slice(0, -1) / PROPORTION_MAX_VALUE;
+  };
+
+  var plusClickHandler = function () {
+    var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
+    if (defaultValue < IMG_MAX_SIZE) {
+      var newValue = defaultValue + IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
+      pictureScale.setAttribute('value', newValue);
+      uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
+    }
+  };
+
+  var minusClickHandler = function () {
+    var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
+    if (defaultValue > IMG_MIN_SIZE) {
+      var newValue = defaultValue - IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
+      pictureScale.setAttribute('value', newValue);
+      uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
+    }
+  };
+
   var form = document.querySelector('#upload-select-image');
   var fragment = document.createDocumentFragment();
   var imageUploadOverlay = form.querySelector('.img-upload__overlay');
@@ -166,11 +204,30 @@
   var main = document.querySelector('main');
   var imgPreviewWrapper = document.querySelector('.img-upload__preview');
   var uploadImage = imgPreviewWrapper.querySelector('img');
+  var plus = imageUploadOverlay.querySelector('.scale__control--bigger');
+  var minus = imageUploadOverlay.querySelector('.scale__control--smaller');
+  var pictureScale = imageUploadOverlay.querySelector('.scale__control--value');
 
   uploadFileField.addEventListener('change', function () {
+    var file = uploadFileField.files[0];
+    var fileName = file.name.toLowerCase();
+    var matches = IMAGE_TYPES.some(function (type) {
+      return fileName.endsWith(type);
+    });
+
+    if (matches) {
+      var reader = new FileReader();
+      reader.addEventListener('load', function () {
+        uploadImage.src = reader.result;
+      });
+      reader.readAsDataURL(file);
+    }
+
     imageUploadOverlay.classList.remove('hidden');
     document.addEventListener('keydown', escClickHandler);
     closeButton.addEventListener('click', overlayCloseButtonClickHandler, {once: true});
+    plus.addEventListener('click', plusClickHandler);
+    minus.addEventListener('click', minusClickHandler);
   });
 
   imageUploadOverlay.addEventListener('click', function (uploadOverlayClickEvt) {
