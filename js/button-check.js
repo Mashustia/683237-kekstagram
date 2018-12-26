@@ -1,17 +1,38 @@
 'use strict';
 (function () {
-  var ESC_CODE = 'Escape';
-  var ENTER_CODE = 'Enter';
+  var keyMap = {
+    'esc': 'Escape',
+    'enter': 'Escape',
+    'arrowLeft': 'ArrowLeft',
+    'arrowRight': 'ArrowRight'
+  };
+
+  // var ESC_CODE = 'Escape';
+  // var ENTER_CODE = 'Escape';
 
   var escape = function (evt) {
-    if (evt.code === ESC_CODE) {
+    if (evt.code === keyMap['esc']) {
       return true;
     }
     return false;
   };
 
   var enter = function (evt) {
-    if (evt.code === ENTER_CODE) {
+    if (evt.code === keyMap['enter']) {
+      return true;
+    }
+    return false;
+  };
+
+  var left = function (evt) {
+    if (evt.code === keyMap['arrowLeft']) {
+      return true;
+    }
+    return false;
+  };
+
+  var right = function (evt) {
+    if (evt.code === keyMap['arrowRight']) {
       return true;
     }
     return false;
@@ -19,6 +40,8 @@
 
   window.buttonCheck = {
     escape: escape,
-    enter: enter
+    enter: enter,
+    left: left,
+    right: right
   };
 })();

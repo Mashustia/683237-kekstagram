@@ -7,20 +7,9 @@
    * @function
    * @param {object} evt
    */
-  var bigPictureEscClickHandler = function (evt) {
+  var bigPictureEscKeydownHandler = function (evt) {
     if (window.buttonCheck.escape(evt)) {
       removeBigPictureClickHandlers();
-    }
-  };
-
-  /**
-   * Функция создает обработчик событий для клавиши enter.
-   * @function
-   * @param {object} evt
-   */
-  var bigPictureEnterClickHandler = function (evt) {
-    if (window.buttonCheck.enter(evt)) {
-      fillBigPicture(getCurrentObject(pictureDataList, evt.target.children[0].attributes.src.nodeValue));
     }
   };
 
@@ -77,11 +66,16 @@
   var fillBigPicture = function (currentObject) {
     bigPicture.classList.remove('hidden');
     body.classList.add('modal-open');
-    document.addEventListener('keydown', bigPictureEscClickHandler);
+    document.addEventListener('keydown', bigPictureEscKeydownHandler);
     renderBigPicture(currentObject[0], bigPicture);
     renderComment(currentObject[0], commentTemplate);
     commentsList.innerHTML = '';
     commentsList.appendChild(fragment);
+    likes.focus();
+    bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler);
+    bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
+    commentsLoader.addEventListener('click', commentsLoaderClickHandler);
+    hideComments();
   };
 
   /**
@@ -120,16 +114,18 @@
     bigPicture.classList.add('hidden');
     commentsLoader.classList.remove('hidden');
     body.removeAttribute('class');
-    document.removeEventListener('keydown', bigPictureEscClickHandler);
+    document.removeEventListener('keydown', bigPictureEscKeydownHandler);
     bigPicture.removeEventListener('click', bigPictureOverlayClickHandler);
     commentsLoader.removeEventListener('click', commentsLoaderClickHandler);
+    bigPictureCloseButton.removeEventListener('click', bigPictureCloseButtonClickHandler);
+    currentPicture.focus();
   };
 
   /**
    * Функция открывает комментарии по клику на .comments-loader
    * @function
    */
-  var commentsLoaderClickHandler = function () {
+  var loadComments = function () {
     var comments = bigPicture.querySelectorAll('.social__comment');
     var commentsShown = bigPicture.querySelector('.comments-count--shown');
     var count = parseInt(commentsShown.textContent, 10) + parseInt(NEXT_COMMENT_VALUE, 10);
@@ -141,6 +137,14 @@
       comment.removeAttribute('style');
     });
     commentsShown.textContent = count;
+  };
+
+  /**
+   * Слушаетль события для .comments-loader
+   * @function
+   */
+  var commentsLoaderClickHandler = function () {
+    loadComments();
   };
 
   /**
@@ -166,26 +170,24 @@
   var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
   var pictureDataList = {};
   var body = document.querySelector('body');
+  var likes = bigPicture.querySelector('.likes-count');
+  var currentPicture = {};
 
   window.server.load(onLoad, onError);
 
   picturesContainer.addEventListener('click', function (evt) {
     if (evt.target.classList.contains('picture__img')) {
-      fillBigPicture(getCurrentObject(pictureDataList, evt.target.attributes.src.nodeValue));
-      bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
-      bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
-      hideComments();
-      commentsLoader.addEventListener('click', commentsLoaderClickHandler);
+      var currentObject = getCurrentObject(pictureDataList, evt.target.attributes.src.nodeValue);
+      fillBigPicture(currentObject);
+      currentPicture = evt.target.parentNode;
     }
   });
 
   picturesContainer.addEventListener('keydown', function (evt) {
     if (evt.target.classList.contains('picture') && window.buttonCheck.enter(evt)) {
-      bigPictureEnterClickHandler(evt);
-      bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler, {once: true});
-      bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
-      hideComments();
-      commentsLoader.addEventListener('click', commentsLoaderClickHandler);
+      var currentObject = getCurrentObject(pictureDataList, evt.target.children[0].attributes.src.nodeValue);
+      fillBigPicture(currentObject);
+      currentPicture = evt.target;
     }
   });
 })();

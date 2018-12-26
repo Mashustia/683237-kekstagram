@@ -39,11 +39,13 @@
       } else if (hashtag.length < MIN_HASHTAG_LENGTH) {
         eventAttribute.setCustomValidity(warningList.second);
       } else if (hashtag.length > MAX_HASHTAG_LENGTH) {
-        eventAttribute.setCustomValidity(warningList.third);
+        if (hashtag.includes(HASHTAG_SYMBOL, 1)) {
+          eventAttribute.setCustomValidity(warningList.sixth);
+        } else {
+          eventAttribute.setCustomValidity(warningList.third);
+        }
       } else if (index > 4) {
         eventAttribute.setCustomValidity(warningList.fourth);
-      } else if (hashtag.includes(HASHTAG_SYMBOL, 1)) {
-        eventAttribute.setCustomValidity(warningList.sixth);
       }
     });
   };
@@ -89,6 +91,7 @@
   };
 
   var hashtagInput = document.querySelector('.text__hashtags');
+  var commentArea = document.querySelector('.text__description');
 
   hashtagInput.addEventListener('input', function (evt) {
     var hashtagArray = splitHashtagString(hashtagInput);
@@ -105,6 +108,14 @@
   });
 
   hashtagInput.addEventListener('blur', function () {
+    document.addEventListener('keydown', window.editingOverlay.esc);
+  });
+
+  commentArea.addEventListener('focus', function () {
+    document.removeEventListener('keydown', window.editingOverlay.esc);
+  });
+
+  commentArea.addEventListener('blur', function () {
     document.addEventListener('keydown', window.editingOverlay.esc);
   });
 })();

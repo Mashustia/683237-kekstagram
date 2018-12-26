@@ -3,6 +3,7 @@
   var CONTAINER_WIDTH = 453;
   var PROPORTION_MAX_VALUE = 100;
   var PROPORTION_MIN_VALUE = 0;
+  var ROUNDING_VALUE = 100;
 
   /**
    * Функция рассчитывает интенсивность эффекта (Хром, Сепия, Фобос...) в зависимости от положения пина.
@@ -100,6 +101,18 @@
     tagName.style.width = styleValue + '%';
   };
 
+  /**
+   * Функция задает положение пина слайдера, добавляет фильтры картинке, задает инпуту effect-level__value значение интенсивности фильтра
+   * @function
+   * @param {number} pointPosition значение интенсивности фильтра
+   */
+  var setSliderPriperties = function (pointPosition) {
+    setStyleLeft(sliderPin, pointPosition);
+    setStyleWidth(sliderEffectLevelDepth, pointPosition);
+    addFilters(pointPosition, uploadImage, filterProperties);
+    sliderEffect.setAttribute('value', pointPosition);
+  };
+
   var filterProperties = {
     'effects__preview--none': {
       cssProperty: 'none',
@@ -148,17 +161,18 @@
   var sliderEffect = document.querySelector('.effect-level__value');
   var sliderPin = document.querySelector('.effect-level__pin');
   var sliderLine = document.querySelector('.effect-level__line');
+  var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
 
   effectsList.addEventListener('click', function (evt) {
     if (evt.target.classList.contains('effects__radio')) {
       var effectLevelContainer = document.querySelector('.effect-level');
       var sliderEffectInputDefault = '100';
-      var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
 
       Array.from(effectsList.querySelectorAll('.effects__radio')).forEach(function (input) {
         if (input.checked) {
           uploadImage.removeAttribute('class');
           uploadImage.classList.add(filterMap[input.value]);
+          uploadImage.style.filter = null;
         }
       });
 
@@ -166,23 +180,17 @@
       setStyleLeft(sliderPin, sliderEffectInputDefault);
       setStyleWidth(sliderEffectLevelDepth, sliderEffectInputDefault);
       sliderEffect.setAttribute('value', sliderEffectInputDefault);
-      uploadImage.removeAttribute('style');
     }
   });
 
   sliderPin.addEventListener('mousedown', function (evt) {
-    var ROUNDING_VALUE = 100;
     var startPinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
-    var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
 
     var onMouseMove = function (moveEvt) {
       var shift = getPinPoint(getLeftCoords(sliderLine), moveEvt) - startPinPoint;
       var roundNewPinPointValue = roundNumber((startPinPoint + shift), ROUNDING_VALUE);
 
-      setStyleLeft(sliderPin, roundNewPinPointValue);
-      setStyleWidth(sliderEffectLevelDepth, roundNewPinPointValue);
-      sliderEffect.setAttribute('value', roundNewPinPointValue);
-      addFilters(roundNewPinPointValue, uploadImage, filterProperties);
+      setSliderPriperties(roundNewPinPointValue);
 
       startPinPoint = getPinPoint(getLeftCoords(sliderLine), moveEvt);
     };
@@ -190,10 +198,7 @@
     var onMouseUp = function () {
       var roundStartPinPointValue = roundNumber(startPinPoint, ROUNDING_VALUE);
 
-      setStyleLeft(sliderPin, roundStartPinPointValue);
-      setStyleWidth(sliderEffectLevelDepth, roundStartPinPointValue);
-      sliderEffect.setAttribute('value', roundStartPinPointValue);
-      addFilters(roundStartPinPointValue, uploadImage, filterProperties);
+      setSliderPriperties(roundStartPinPointValue);
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
@@ -201,5 +206,39 @@
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
+  });
+
+  sliderPin.addEventListener('keydown', function (evt) {
+    var start = parseInt((sliderPin.style.left).slice(0, -1), 10);
+    var step = 10;
+
+    if (window.buttonCheck.left(evt)) {
+      var nextPointLeft = start - step;
+
+      if (start <= step) {
+        nextPointLeft = PROPORTION_MIN_VALUE;
+      }
+
+      setSliderPriperties(nextPointLeft);
+    }
+
+    if (window.buttonCheck.right(evt)) {
+      var nextPointRight = start + step;
+
+      if (start >= (PROPORTION_MAX_VALUE - step)) {
+        nextPointRight = PROPORTION_MAX_VALUE;
+      }
+
+      setSliderPriperties(nextPointRight);
+    }
+  });
+
+  sliderLine.addEventListener('click', function (evt) {
+    if (evt.target !== sliderPin) {
+      var clickPoint = getPinPoint(getLeftCoords(sliderLine), evt);
+      var roundNewClickPointtValue = roundNumber((clickPoint), ROUNDING_VALUE);
+
+      setSliderPriperties(roundNewClickPointtValue);
+    }
   });
 })();

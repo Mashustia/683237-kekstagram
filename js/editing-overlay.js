@@ -7,6 +7,7 @@
   var IMG_MIN_SIZE = 25;
   var PROPORTION_MAX_VALUE = 100;
 
+
   /**
    * Функция для закрытия формы редактирования изображения по клавише esc
    * @function
@@ -24,13 +25,21 @@
    */
   var resetForm = function () {
     imageUploadOverlay.classList.add('hidden');
+    imageUploadOverlay.removeEventListener('click', imageUploadOverlayClickHandler);
     document.removeEventListener('keydown', escClickHandler);
     plus.removeEventListener('click', plusClickHandler);
     minus.removeEventListener('click', minusClickHandler);
-    uploadFileField.value = '';
+    form.removeEventListener('submit', formSubmitHandler);
     form.reset();
+    pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
     uploadImage.removeAttribute('class');
+    uploadImage.removeAttribute('style');
     uploadImage.src = '';
+    sliderPin.style.left = PROPORTION_MAX_VALUE + '%';
+    sliderEffectLevelDepth.style.width = PROPORTION_MAX_VALUE + '%';
+    uploadFileField.value = '';
+    uploadFileField.focus();
+    sliderEffect.setAttribute('value', PROPORTION_MAX_VALUE + '%');
   };
 
   /**
@@ -46,6 +55,7 @@
     main.querySelector('.success__button').removeEventListener('click', successPopupButtonClickHandler);
     main.querySelector('.success').removeEventListener('click', successPopupOverlayClickHandler);
     main.querySelector('.success').remove();
+    uploadFileField.focus();
   };
 
   /**
@@ -93,6 +103,7 @@
     document.addEventListener('keydown', successPopupCloseKey);
     successCloseButton.addEventListener('click', successPopupButtonClickHandler, {once: true});
     successPopup.addEventListener('click', successPopupOverlayClickHandler);
+    successCloseButton.focus();
   };
 
   /**
@@ -109,6 +120,7 @@
     document.addEventListener('keydown', escClickHandler);
     main.querySelector('.error').removeEventListener('click', errorPopupOverlayClickHandler);
     main.querySelector('.error').remove();
+    minus.focus();
   };
 
   /**
@@ -128,6 +140,7 @@
    */
   var errorPopupButtonClickHandler = function () {
     errorPopupRemoveClickHandlers();
+    minus.focus();
   };
 
   /**
@@ -153,12 +166,12 @@
     var errorTemplate = document.querySelector('#error').content.querySelector('.error');
 
     main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
-
     document.removeEventListener('keydown', escClickHandler);
 
     var errorPopup = main.querySelector('.error');
     var errorCloseButtons = errorPopup.querySelectorAll('.error__button');
     var newFileButton = errorPopup.querySelector('.error__button--new-file');
+    var tryAgain = errorPopup.querySelector('.error__button--try-again');
 
     document.addEventListener('keydown', errorPopupCloseKey);
     errorCloseButtons.forEach(function (button) {
@@ -166,6 +179,7 @@
     });
     errorPopup.addEventListener('click', errorPopupOverlayClickHandler);
     newFileButton.addEventListener('click', newFileButtonClickHandler, {once: true});
+    tryAgain.focus();
   };
 
   /**
@@ -178,6 +192,10 @@
     return valueInPercent.slice(0, -1) / PROPORTION_MAX_VALUE;
   };
 
+  /**
+   * Слушатель событий для кнопки увеличения изображения
+   * @function
+   */
   var plusClickHandler = function () {
     var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
     if (defaultValue < IMG_MAX_SIZE) {
@@ -187,12 +205,37 @@
     }
   };
 
+  /**
+   * Слушатель событий для кнопки уменьшения изображения
+   * @function
+   */
   var minusClickHandler = function () {
     var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
     if (defaultValue > IMG_MIN_SIZE) {
       var newValue = defaultValue - IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
       pictureScale.setAttribute('value', newValue);
       uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
+    }
+  };
+
+  /**
+   * Слушатель события отправки формы
+   * @function
+   * @param {evt} evt
+   */
+  var formSubmitHandler = function (evt) {
+    window.server.upload(new FormData(form), onLoad, onError);
+    evt.preventDefault();
+  };
+
+  /**
+   * Слушатель события на оверлее img-upload__overlay
+   * @function
+   * @param {evt} evt
+   */
+  var imageUploadOverlayClickHandler = function (evt) {
+    if (evt.target.classList.contains('img-upload__overlay')) {
+      resetForm();
     }
   };
 
@@ -207,6 +250,9 @@
   var plus = imageUploadOverlay.querySelector('.scale__control--bigger');
   var minus = imageUploadOverlay.querySelector('.scale__control--smaller');
   var pictureScale = imageUploadOverlay.querySelector('.scale__control--value');
+  var sliderPin = document.querySelector('.effect-level__pin');
+  var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
+  var sliderEffect = document.querySelector('.effect-level__value');
 
   uploadFileField.addEventListener('change', function () {
     var file = uploadFileField.files[0];
@@ -224,21 +270,13 @@
     }
 
     imageUploadOverlay.classList.remove('hidden');
+    minus.focus();
     document.addEventListener('keydown', escClickHandler);
     closeButton.addEventListener('click', overlayCloseButtonClickHandler, {once: true});
     plus.addEventListener('click', plusClickHandler);
     minus.addEventListener('click', minusClickHandler);
-  });
-
-  imageUploadOverlay.addEventListener('click', function (uploadOverlayClickEvt) {
-    if (uploadOverlayClickEvt.target.classList.contains('img-upload__overlay')) {
-      resetForm();
-    }
-  });
-
-  form.addEventListener('submit', function (evt) {
-    window.server.upload(new FormData(form), onLoad, onError);
-    evt.preventDefault();
+    imageUploadOverlay.addEventListener('click', imageUploadOverlayClickHandler);
+    form.addEventListener('submit', formSubmitHandler);
   });
 
   window.editingOverlay = {
