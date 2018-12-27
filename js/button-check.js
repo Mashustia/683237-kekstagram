@@ -2,13 +2,10 @@
 (function () {
   var keyMap = {
     'esc': 'Escape',
-    'enter': 'Escape',
+    'enter': 'Enter',
     'arrowLeft': 'ArrowLeft',
     'arrowRight': 'ArrowRight'
   };
-
-  // var ESC_CODE = 'Escape';
-  // var ENTER_CODE = 'Escape';
 
   var escape = function (evt) {
     if (evt.code === keyMap['esc']) {

@@ -4,6 +4,8 @@
   var PROPORTION_MAX_VALUE = 100;
   var PROPORTION_MIN_VALUE = 0;
   var ROUNDING_VALUE = 100;
+  var STEP = 10;
+  var SLIDER_EFFECT_INPUT_DEFAULT = '100';
 
   /**
    * Функция рассчитывает интенсивность эффекта (Хром, Сепия, Фобос...) в зависимости от положения пина.
@@ -106,11 +108,108 @@
    * @function
    * @param {number} pointPosition значение интенсивности фильтра
    */
-  var setSliderPriperties = function (pointPosition) {
+  var setSliderProperties = function (pointPosition) {
     setStyleLeft(sliderPin, pointPosition);
     setStyleWidth(sliderEffectLevelDepth, pointPosition);
     addFilters(pointPosition, uploadImage, filterProperties);
     sliderEffect.setAttribute('value', pointPosition);
+  };
+
+  /**
+   * Слушатель события клика для фильтров
+   * @function
+   * @param {evt} evt
+   */
+  var filterClickHandler = function (evt) {
+    if (evt.target.classList.contains('effects__radio')) {
+      var effectLevelContainer = document.querySelector('.effect-level');
+
+      Array.from(effectsList.querySelectorAll('.effects__radio')).forEach(function (input) {
+        if (input.checked) {
+          uploadImage.removeAttribute('class');
+          uploadImage.classList.add(filterMap[input.value]);
+          uploadImage.style.filter = null;
+        }
+      });
+
+      hideSlider(uploadImage, effectLevelContainer);
+      setStyleLeft(sliderPin, SLIDER_EFFECT_INPUT_DEFAULT);
+      setStyleWidth(sliderEffectLevelDepth, SLIDER_EFFECT_INPUT_DEFAULT);
+      sliderEffect.setAttribute('value', SLIDER_EFFECT_INPUT_DEFAULT);
+    }
+  };
+
+  /**
+   * Слушатель события Mousedown для пина слайдера
+   * @function
+   * @param {evt} evt
+   */
+  var sliderPinMousedownHandler = function (evt) {
+    var startPinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
+
+    var onMouseMove = function (moveEvt) {
+      var shift = getPinPoint(getLeftCoords(sliderLine), moveEvt) - startPinPoint;
+      var roundNewPinPointValue = roundNumber((startPinPoint + shift), ROUNDING_VALUE);
+
+      setSliderProperties(roundNewPinPointValue);
+
+      startPinPoint = getPinPoint(getLeftCoords(sliderLine), moveEvt);
+    };
+
+    var onMouseUp = function () {
+      var roundStartPinPointValue = roundNumber(startPinPoint, ROUNDING_VALUE);
+
+      setSliderProperties(roundStartPinPointValue);
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  /**
+   * Слушатель события Keydown для пина слайдера
+   * @function
+   * @param {evt} evt
+   */
+  var sliderPinKeydownHandler = function (evt) {
+    var start = parseInt((sliderPin.style.left).slice(0, -1), 10);
+
+    if (window.buttonCheck.left(evt)) {
+      var nextPointLeft = start - STEP;
+
+      if (start <= STEP) {
+        nextPointLeft = PROPORTION_MIN_VALUE;
+      }
+
+      setSliderProperties(nextPointLeft);
+    }
+
+    if (window.buttonCheck.right(evt)) {
+      var nextPointRight = start + STEP;
+
+      if (start >= (PROPORTION_MAX_VALUE - STEP)) {
+        nextPointRight = PROPORTION_MAX_VALUE;
+      }
+
+      setSliderProperties(nextPointRight);
+    }
+  };
+
+  /**
+   * Слушатель события Click для линии слайдера
+   * @function
+   * @param {evt} evt
+   */
+  var sliderLineClickHandler = function (evt) {
+    if (evt.target !== sliderPin) {
+      var clickPoint = getPinPoint(getLeftCoords(sliderLine), evt);
+      var roundNewClickPointtValue = roundNumber((clickPoint), ROUNDING_VALUE);
+
+      setSliderProperties(roundNewClickPointtValue);
+    }
   };
 
   var filterProperties = {
@@ -163,82 +262,10 @@
   var sliderLine = document.querySelector('.effect-level__line');
   var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
 
-  effectsList.addEventListener('click', function (evt) {
-    if (evt.target.classList.contains('effects__radio')) {
-      var effectLevelContainer = document.querySelector('.effect-level');
-      var sliderEffectInputDefault = '100';
-
-      Array.from(effectsList.querySelectorAll('.effects__radio')).forEach(function (input) {
-        if (input.checked) {
-          uploadImage.removeAttribute('class');
-          uploadImage.classList.add(filterMap[input.value]);
-          uploadImage.style.filter = null;
-        }
-      });
-
-      hideSlider(uploadImage, effectLevelContainer);
-      setStyleLeft(sliderPin, sliderEffectInputDefault);
-      setStyleWidth(sliderEffectLevelDepth, sliderEffectInputDefault);
-      sliderEffect.setAttribute('value', sliderEffectInputDefault);
-    }
-  });
-
-  sliderPin.addEventListener('mousedown', function (evt) {
-    var startPinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
-
-    var onMouseMove = function (moveEvt) {
-      var shift = getPinPoint(getLeftCoords(sliderLine), moveEvt) - startPinPoint;
-      var roundNewPinPointValue = roundNumber((startPinPoint + shift), ROUNDING_VALUE);
-
-      setSliderPriperties(roundNewPinPointValue);
-
-      startPinPoint = getPinPoint(getLeftCoords(sliderLine), moveEvt);
-    };
-
-    var onMouseUp = function () {
-      var roundStartPinPointValue = roundNumber(startPinPoint, ROUNDING_VALUE);
-
-      setSliderPriperties(roundStartPinPointValue);
-
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-
-  sliderPin.addEventListener('keydown', function (evt) {
-    var start = parseInt((sliderPin.style.left).slice(0, -1), 10);
-    var step = 10;
-
-    if (window.buttonCheck.left(evt)) {
-      var nextPointLeft = start - step;
-
-      if (start <= step) {
-        nextPointLeft = PROPORTION_MIN_VALUE;
-      }
-
-      setSliderPriperties(nextPointLeft);
-    }
-
-    if (window.buttonCheck.right(evt)) {
-      var nextPointRight = start + step;
-
-      if (start >= (PROPORTION_MAX_VALUE - step)) {
-        nextPointRight = PROPORTION_MAX_VALUE;
-      }
-
-      setSliderPriperties(nextPointRight);
-    }
-  });
-
-  sliderLine.addEventListener('click', function (evt) {
-    if (evt.target !== sliderPin) {
-      var clickPoint = getPinPoint(getLeftCoords(sliderLine), evt);
-      var roundNewClickPointtValue = roundNumber((clickPoint), ROUNDING_VALUE);
-
-      setSliderPriperties(roundNewClickPointtValue);
-    }
-  });
+  window.slider = {
+    filterClick: filterClickHandler,
+    pinClick: sliderPinMousedownHandler,
+    pinKeydown: sliderPinKeydownHandler,
+    lineClick: sliderLineClickHandler
+  };
 })();

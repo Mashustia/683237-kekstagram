@@ -7,7 +7,6 @@
   var IMG_MIN_SIZE = 25;
   var PROPORTION_MAX_VALUE = 100;
 
-
   /**
    * Функция для закрытия формы редактирования изображения по клавише esc
    * @function
@@ -20,17 +19,33 @@
   };
 
   /**
-   * Функция сбрасывает данные формы
+   * Функция сбрасывает данные формы и удаляет слушаетли событий
    * @function
    */
   var resetForm = function () {
     imageUploadOverlay.classList.add('hidden');
-    imageUploadOverlay.removeEventListener('click', imageUploadOverlayClickHandler);
+    imageUploadOverlay.removeEventListener('mousedown', imageUploadOverlayClickHandler);
     document.removeEventListener('keydown', escClickHandler);
+    form.removeEventListener('submit', formSubmitHandler);
+
     plus.removeEventListener('click', plusClickHandler);
     minus.removeEventListener('click', minusClickHandler);
-    form.removeEventListener('submit', formSubmitHandler);
+
+    hashtagInput.removeEventListener('input', window.hashtagValidation.check);
+    hashtagInput.removeEventListener('focus', hashtagFocusHandler);
+    hashtagInput.removeEventListener('blur', hashtagBlurHandler);
+
+    commentArea.removeEventListener('focus', hashtagFocusHandler);
+    commentArea.removeEventListener('blur', hashtagBlurHandler);
+
+    effectsList.removeEventListener('click', window.slider.filterClick);
+
+    sliderPin.removeEventListener('mousedown', window.slider.pinClick);
+    sliderPin.removeEventListener('keydown', window.slider.pinKeydown);
+    sliderLine.removeEventListener('click', window.slider.lineClick);
+
     form.reset();
+
     pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
     uploadImage.removeAttribute('class');
     uploadImage.removeAttribute('style');
@@ -239,6 +254,22 @@
     }
   };
 
+  /**
+   * Удаляет слушатель события закрытия окна по escape
+   * @function
+   */
+  var hashtagFocusHandler = function () {
+    document.removeEventListener('keydown', escClickHandler);
+  };
+
+  /**
+   * Добавляет слушатель события закрытия окна по escape
+   * @function
+   */
+  var hashtagBlurHandler = function () {
+    document.addEventListener('keydown', escClickHandler);
+  };
+
   var form = document.querySelector('#upload-select-image');
   var fragment = document.createDocumentFragment();
   var imageUploadOverlay = form.querySelector('.img-upload__overlay');
@@ -253,6 +284,10 @@
   var sliderPin = document.querySelector('.effect-level__pin');
   var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
   var sliderEffect = document.querySelector('.effect-level__value');
+  var hashtagInput = document.querySelector('.text__hashtags');
+  var commentArea = document.querySelector('.text__description');
+  var effectsList = document.querySelector('.effects__list');
+  var sliderLine = document.querySelector('.effect-level__line');
 
   uploadFileField.addEventListener('change', function () {
     var file = uploadFileField.files[0];
@@ -275,8 +310,21 @@
     closeButton.addEventListener('click', overlayCloseButtonClickHandler, {once: true});
     plus.addEventListener('click', plusClickHandler);
     minus.addEventListener('click', minusClickHandler);
-    imageUploadOverlay.addEventListener('click', imageUploadOverlayClickHandler);
+    imageUploadOverlay.addEventListener('mousedown', imageUploadOverlayClickHandler);
     form.addEventListener('submit', formSubmitHandler);
+
+    hashtagInput.addEventListener('input', window.hashtagValidation.check);
+
+    hashtagInput.addEventListener('focus', hashtagFocusHandler);
+    hashtagInput.addEventListener('blur', hashtagBlurHandler);
+
+    commentArea.addEventListener('focus', hashtagFocusHandler);
+    commentArea.addEventListener('blur', hashtagBlurHandler);
+
+    effectsList.addEventListener('click', window.slider.filterClick);
+    sliderPin.addEventListener('mousedown', window.slider.pinClick);
+    sliderPin.addEventListener('keydown', window.slider.pinKeydown);
+    sliderLine.addEventListener('click', window.slider.lineClick);
   });
 
   window.editingOverlay = {

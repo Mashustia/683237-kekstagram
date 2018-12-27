@@ -2,6 +2,7 @@
 (function () {
   var DEFAULT_COMMENTS_VALUE = '5';
   var NEXT_COMMENT_VALUE = '5';
+
   /**
    * Функция создает обработчик событий для клавиши escape.
    * @function
