@@ -32,9 +32,9 @@
    * @param {object} templateElement темплейт для копирования.
    */
   var writeElements = function (userArray, templateElement) {
-    for (var i = 0; i < userArray.length; i++) {
-      fragment.appendChild(createPost(cloneElement(templateElement), userArray[i]));
-    }
+    userArray.forEach(function (arrayEl) {
+      fragment.appendChild(createPost(cloneElement(templateElement), arrayEl));
+    });
   };
 
   /**

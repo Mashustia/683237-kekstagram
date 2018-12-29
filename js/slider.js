@@ -3,8 +3,9 @@
   var CONTAINER_WIDTH = 453;
   var PROPORTION_MAX_VALUE = 100;
   var PROPORTION_MIN_VALUE = 0;
-  var EFFECT_NAME_FIRST_LETTER_NUMBER = 7;
-  var EFFECTS_PREVIEW = 'effects__preview--';
+  var ROUNDING_VALUE = 100;
+  var STEP = 10;
+  var SLIDER_EFFECT_INPUT_DEFAULT = '100';
 
   /**
    * Функция рассчитывает интенсивность эффекта (Хром, Сепия, Фобос...) в зависимости от положения пина.
@@ -48,63 +49,14 @@
   };
 
   /**
-   * Функция добавляет css свойсто style выбранному тегу
-   * @function
-   * @param {object} checkedArgument - тег, которому нужно добавить стиль
-   * @param {string} cssProperty - css-своство, которое будет добавлено
-   * @param {number} cssPropertyValue - значение css - свойства, которое будет добавлено (численное)
-   * @param {boolean} inPercent true, если cssPropertyValue должно быть в процентах
-   * @param {boolean} inPixels true, если cssPropertyValue должно быть в пикселях
+   * Функция добавляет объекту checkedTag стили
+   * @param {number} PinPointValue значение ползунка слайдера
+   * @param {objeckt} checkedTag тег, которому добавляются стили
+   * @param {objeckt} filterPropertiesList список объектов
    */
-  var addFilterName = function (checkedArgument, cssProperty, cssPropertyValue, inPercent, inPixels) {
-    if (inPercent) {
-      checkedArgument.style.filter = '' + cssProperty + '(' + cssPropertyValue + '%' + ')';
-    } else if (inPixels) {
-      checkedArgument.style.filter = '' + cssProperty + '(' + cssPropertyValue + 'px' + ')';
-    } else {
-      checkedArgument.style.filter = '' + cssProperty + '(' + cssPropertyValue + ')';
-    }
-  };
-
-  /**
-   * Функция добавляет тегу стили, в зависимости от класса
-   * @function
-   * @param {number} PinPointValue - интенсивность фильтра от 0 до 100.
-   * @param {object} checkedTag - тег, у которого проверяется класс
-   * @param {object} filterPropertiesList - объект с параметрами фильтров
-   */
-  var addAllFilters = function (PinPointValue, checkedTag, filterPropertiesList) {
-    switch (checkedTag.className) {
-      case filterPropertiesList.none.class:
-        break;
-      case filterPropertiesList.chrome.class:
-        addFilterName(checkedTag, filterPropertiesList.chrome.cssProperty, returnPercent(PinPointValue, filterPropertiesList.chrome.maxValue));
-        break;
-      case filterPropertiesList.sepia.class:
-        addFilterName(checkedTag, filterPropertiesList.sepia.cssProperty, returnPercent(PinPointValue, filterPropertiesList.sepia.maxValue));
-        break;
-      case filterPropertiesList.marvin.class:
-        addFilterName(checkedTag, filterPropertiesList.marvin.cssProperty, PinPointValue, true);
-        break;
-      case filterPropertiesList.phobos.class:
-        addFilterName(checkedTag, filterPropertiesList.phobos.cssProperty, returnPercent(PinPointValue, filterPropertiesList.phobos.maxValue), false, true);
-        break;
-      case filterPropertiesList.heat.class:
-        addFilterName(checkedTag, filterPropertiesList.heat.cssProperty, returnPercent(PinPointValue, filterPropertiesList.heat.maxValue));
-        break;
-      default:
-        break;
-    }
-  };
-
-  /**
-   * Функция обрезает id элемента так, как нужно.
-   * @function
-   * @param {event} checkedEvent проверяемый элемент.
-   * @return {string} возвращает измененный id.
-   */
-  var sliceIdName = function (checkedEvent) {
-    return EFFECTS_PREVIEW + checkedEvent.target.id.slice(EFFECT_NAME_FIRST_LETTER_NUMBER);
+  var addFilters = function (PinPointValue, checkedTag, filterPropertiesList) {
+    var filter = filterPropertiesList[checkedTag.className];
+    checkedTag.style.filter = filter.cssProperty + '(' + returnPercent(PinPointValue, filter.maxValue) + filter.units + ')';
   };
 
   /**
@@ -114,7 +66,7 @@
    * @param {object} mustBeHidden параметр, который должен быть скрыт.
    */
   var hideSlider = function (checkedArgument, mustBeHidden) {
-    if (checkedArgument.classList.contains(filterProperties.none.class)) {
+    if (checkedArgument.classList.contains(filterMap['none'])) {
       mustBeHidden.classList.add('hidden');
     } else {
       mustBeHidden.classList.remove('hidden');
@@ -151,43 +103,155 @@
     tagName.style.width = styleValue + '%';
   };
 
+  /**
+   * Функция задает положение пина слайдера, добавляет фильтры картинке, задает инпуту effect-level__value значение интенсивности фильтра
+   * @function
+   * @param {number} pointPosition значение интенсивности фильтра
+   */
+  var setSliderProperties = function (pointPosition) {
+    setStyleLeft(sliderPin, pointPosition);
+    setStyleWidth(sliderEffectLevelDepth, pointPosition);
+    addFilters(pointPosition, uploadImage, filterProperties);
+    sliderEffect.setAttribute('value', pointPosition);
+  };
+
+  /**
+   * Слушатель события клика для фильтров
+   * @function
+   * @param {evt} evt
+   */
+  var filterClickHandler = function (evt) {
+    if (evt.target.classList.contains('effects__radio')) {
+      var effectLevelContainer = document.querySelector('.effect-level');
+
+      Array.from(effectsList.querySelectorAll('.effects__radio')).forEach(function (input) {
+        if (input.checked) {
+          uploadImage.removeAttribute('class');
+          uploadImage.classList.add(filterMap[input.value]);
+          uploadImage.style.filter = null;
+        }
+      });
+
+      hideSlider(uploadImage, effectLevelContainer);
+      setStyleLeft(sliderPin, SLIDER_EFFECT_INPUT_DEFAULT);
+      setStyleWidth(sliderEffectLevelDepth, SLIDER_EFFECT_INPUT_DEFAULT);
+      sliderEffect.setAttribute('value', SLIDER_EFFECT_INPUT_DEFAULT);
+    }
+  };
+
+  /**
+   * Слушатель события Mousedown для пина слайдера
+   * @function
+   * @param {evt} evt
+   */
+  var sliderPinMousedownHandler = function (evt) {
+    var startPinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
+
+    var onMouseMove = function (moveEvt) {
+      var shift = getPinPoint(getLeftCoords(sliderLine), moveEvt) - startPinPoint;
+      var roundNewPinPointValue = roundNumber((startPinPoint + shift), ROUNDING_VALUE);
+
+      setSliderProperties(roundNewPinPointValue);
+
+      startPinPoint = getPinPoint(getLeftCoords(sliderLine), moveEvt);
+    };
+
+    var onMouseUp = function () {
+      var roundStartPinPointValue = roundNumber(startPinPoint, ROUNDING_VALUE);
+
+      setSliderProperties(roundStartPinPointValue);
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  /**
+   * Слушатель события Keydown для пина слайдера
+   * @function
+   * @param {evt} evt
+   */
+  var sliderPinKeydownHandler = function (evt) {
+    var start = parseInt((sliderPin.style.left).slice(0, -1), 10);
+
+    if (window.buttonCheck.left(evt)) {
+      var nextPointLeft = start - STEP;
+
+      if (start <= STEP) {
+        nextPointLeft = PROPORTION_MIN_VALUE;
+      }
+
+      setSliderProperties(nextPointLeft);
+    }
+
+    if (window.buttonCheck.right(evt)) {
+      var nextPointRight = start + STEP;
+
+      if (start >= (PROPORTION_MAX_VALUE - STEP)) {
+        nextPointRight = PROPORTION_MAX_VALUE;
+      }
+
+      setSliderProperties(nextPointRight);
+    }
+  };
+
+  /**
+   * Слушатель события Click для линии слайдера
+   * @function
+   * @param {evt} evt
+   */
+  var sliderLineClickHandler = function (evt) {
+    if (evt.target !== sliderPin) {
+      var clickPoint = getPinPoint(getLeftCoords(sliderLine), evt);
+      var roundNewClickPointtValue = roundNumber((clickPoint), ROUNDING_VALUE);
+
+      setSliderProperties(roundNewClickPointtValue);
+    }
+  };
+
   var filterProperties = {
-    none: {
-      name: 'none',
+    'effects__preview--none': {
       cssProperty: 'none',
-      class: 'effects__preview--none',
+      units: '',
       maxValue: 1
     },
-    chrome: {
-      name: 'chrome',
+    'effects__preview--chrome': {
       cssProperty: 'grayscale',
-      class: 'effects__preview--chrome',
+      units: '',
       maxValue: 1
     },
-    sepia: {
-      name: 'sepia',
+    'effects__preview--sepia': {
       cssProperty: 'sepia',
-      class: 'effects__preview--sepia',
+      units: '',
       maxValue: 1
     },
-    marvin: {
-      name: 'marvin',
+    'effects__preview--marvin': {
       cssProperty: 'invert',
-      class: 'effects__preview--marvin',
-      maxValue: 1
+      units: '%',
+      maxValue: 100
     },
-    phobos: {
-      name: 'phobos',
+    'effects__preview--phobos': {
       cssProperty: 'blur',
-      class: 'effects__preview--phobos',
+      units: 'px',
       maxValue: 3
     },
-    heat: {
-      name: 'heat',
+    'effects__preview--heat': {
       cssProperty: 'brightness',
-      class: 'effects__preview--heat',
+      units: '',
       maxValue: 3
     }
+  };
+
+  var filterMap = {
+    'none': 'effects__preview--none',
+    'chrome': 'effects__preview--chrome',
+    'sepia': 'effects__preview--sepia',
+    'marvin': 'effects__preview--marvin',
+    'phobos': 'effects__preview--phobos',
+    'heat': 'effects__preview--heat'
   };
 
   var imgPreviewWrapper = document.querySelector('.img-upload__preview');
@@ -196,54 +260,12 @@
   var sliderEffect = document.querySelector('.effect-level__value');
   var sliderPin = document.querySelector('.effect-level__pin');
   var sliderLine = document.querySelector('.effect-level__line');
+  var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
 
-  effectsList.addEventListener('click', function (evt) {
-    if (evt.target.classList.contains('effects__radio')) {
-      var newClass = sliceIdName(evt);
-      var effectLevelContainer = document.querySelector('.effect-level');
-      var sliderEffectInputDefault = '100';
-      var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
-
-      uploadImage.removeAttribute('class');
-      uploadImage.classList.add(newClass);
-      hideSlider(uploadImage, effectLevelContainer);
-      setStyleLeft(sliderPin, sliderEffectInputDefault);
-      setStyleWidth(sliderEffectLevelDepth, sliderEffectInputDefault);
-      sliderEffect.setAttribute('value', sliderEffectInputDefault);
-      uploadImage.removeAttribute('style');
-    }
-  });
-
-  sliderPin.addEventListener('mousedown', function (evt) {
-    var ROUNDING_VALUE = 100;
-    var startPinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
-    var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
-
-    var onMouseMove = function (moveEvt) {
-      var shift = getPinPoint(getLeftCoords(sliderLine), moveEvt) - startPinPoint;
-      var roundNewPinPointValue = roundNumber((startPinPoint + shift), ROUNDING_VALUE);
-
-      setStyleLeft(sliderPin, roundNewPinPointValue);
-      setStyleWidth(sliderEffectLevelDepth, roundNewPinPointValue);
-      sliderEffect.setAttribute('value', roundNewPinPointValue);
-      addAllFilters(startPinPoint, uploadImage, filterProperties);
-
-      startPinPoint = getPinPoint(getLeftCoords(sliderLine), moveEvt);
-    };
-
-    var onMouseUp = function () {
-      var roundStartPinPointValue = roundNumber(startPinPoint, ROUNDING_VALUE);
-
-      setStyleLeft(sliderPin, roundStartPinPointValue);
-      setStyleWidth(sliderEffectLevelDepth, roundStartPinPointValue);
-      sliderEffect.setAttribute('value', roundStartPinPointValue);
-      addAllFilters(startPinPoint, uploadImage, filterProperties);
-
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
+  window.slider = {
+    filterClick: filterClickHandler,
+    pinClick: sliderPinMousedownHandler,
+    pinKeydown: sliderPinKeydownHandler,
+    lineClick: sliderLineClickHandler
+  };
 })();
