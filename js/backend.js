@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var SEND_FORM_URL = 'https://js.dump.academy/kekstagram_';
+  var SEND_FORM_URL = 'https://js.dump.academy/kekstagram';
   var GET_DATA_URL = 'https://js.dump.academy/kekstagram/data';
   var HTTP_STATUS_CODE_200 = 200;
   var TIMEOUT = 10000;
