@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-  var IMAGE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+  var IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg', 'image/webp'];
   var IMAGE_SCALE_CHANGE = 25;
   var PERCENT_SYMBOL = '%';
   var IMG_MAX_SIZE = 100;
@@ -18,43 +18,34 @@
     }
   };
 
+  var clearAttributes = function () {
+    pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
+
+    uploadImage.removeAttribute('class');
+    uploadImage.removeAttribute('style');
+    uploadImage.src = '';
+
+    sliderPin.style.left = PROPORTION_MAX_VALUE + '%';
+
+    sliderEffectLevelDepth.style.width = PROPORTION_MAX_VALUE + '%';
+
+    sliderEffect.setAttribute('value', PROPORTION_MAX_VALUE + '%');
+
+    //uploadFileField.value = '';
+    //uploadFileField.focus();
+  };
+
   /**
    * Функция сбрасывает данные формы и удаляет слушаетли событий
    * @function
    */
   var resetForm = function () {
     imageUploadOverlay.classList.add('hidden');
-    imageUploadOverlay.removeEventListener('mousedown', imageUploadOverlayClickHandler);
-    document.removeEventListener('keydown', escClickHandler);
-    form.removeEventListener('submit', formSubmitHandler);
+    sliderContainer.classList.add('hidden');
 
-    plus.removeEventListener('click', plusClickHandler);
-    minus.removeEventListener('click', minusClickHandler);
-
-    hashtagInput.removeEventListener('input', window.hashtagValidation.check);
-    hashtagInput.removeEventListener('focus', hashtagFocusHandler);
-    hashtagInput.removeEventListener('blur', hashtagBlurHandler);
-
-    commentArea.removeEventListener('focus', hashtagFocusHandler);
-    commentArea.removeEventListener('blur', hashtagBlurHandler);
-
-    effectsList.removeEventListener('click', window.slider.filterClick);
-
-    sliderPin.removeEventListener('mousedown', window.slider.pinClick);
-    sliderPin.removeEventListener('keydown', window.slider.pinKeydown);
-    sliderLine.removeEventListener('click', window.slider.lineClick);
-
+    removeHandlers();
     form.reset();
-
-    pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
-    uploadImage.removeAttribute('class');
-    uploadImage.removeAttribute('style');
-    uploadImage.src = '';
-    sliderPin.style.left = PROPORTION_MAX_VALUE + '%';
-    sliderEffectLevelDepth.style.width = PROPORTION_MAX_VALUE + '%';
-    uploadFileField.value = '';
-    uploadFileField.focus();
-    sliderEffect.setAttribute('value', PROPORTION_MAX_VALUE + '%');
+    clearAttributes();
   };
 
   /**
@@ -141,7 +132,7 @@
   /**
    * Функция закрытия попапа Error по клавише esc
    * @function
-   * @param {evt} errorKey
+   * @param {event} errorKey
    */
   var errorPopupCloseKey = function (errorKey) {
     if (window.buttonCheck.escape(errorKey)) {
@@ -179,15 +170,13 @@
    */
   var onError = function () {
     var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-
-    main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
-    document.removeEventListener('keydown', escClickHandler);
-
     var errorPopup = main.querySelector('.error');
     var errorCloseButtons = errorPopup.querySelectorAll('.error__button');
     var newFileButton = errorPopup.querySelector('.error__button--new-file');
     var tryAgain = errorPopup.querySelector('.error__button--try-again');
 
+    main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
+    document.removeEventListener('keydown', escClickHandler);
     document.addEventListener('keydown', errorPopupCloseKey);
     errorCloseButtons.forEach(function (button) {
       button.addEventListener('click', errorPopupButtonClickHandler, {once: true});
@@ -236,7 +225,7 @@
   /**
    * Слушатель события отправки формы
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var formSubmitHandler = function (evt) {
     window.server.upload(new FormData(form), onLoad, onError);
@@ -246,7 +235,7 @@
   /**
    * Слушатель события на оверлее img-upload__overlay
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var imageUploadOverlayClickHandler = function (evt) {
     if (evt.target.classList.contains('img-upload__overlay')) {
@@ -257,17 +246,68 @@
   /**
    * Удаляет слушатель события закрытия окна по escape
    * @function
+   * @param {event} evt
    */
-  var hashtagFocusHandler = function () {
-    document.removeEventListener('keydown', escClickHandler);
+  var focusHandler = function (evt) {
+    if (evt.target.classList.contains('text__hashtags') || evt.target.classList.contains('text__description')) {
+      document.removeEventListener('keydown', escClickHandler);
+    }
   };
 
   /**
    * Добавляет слушатель события закрытия окна по escape
    * @function
    */
-  var hashtagBlurHandler = function () {
+  var blurHandler = function () {
     document.addEventListener('keydown', escClickHandler);
+  };
+
+  var removeHandlers = function () {
+    document.removeEventListener('keydown', escClickHandler);
+
+    plus.removeEventListener('click', plusClickHandler);
+
+    minus.removeEventListener('click', minusClickHandler);
+
+    imageUploadOverlay.removeEventListener('mousedown', imageUploadOverlayClickHandler);
+
+    form.removeEventListener('submit', formSubmitHandler);
+    form.removeEventListener('focusin', focusHandler);
+    form.removeEventListener('focusout', blurHandler);
+
+    hashtagInput.removeEventListener('input', window.hashtagValidation.check);
+
+    effectsList.removeEventListener('click', window.slider.filterClick);
+
+    sliderPin.removeEventListener('mousedown', window.slider.pinClick);
+    sliderPin.removeEventListener('keydown', window.slider.pinKeydown);
+
+    sliderLine.removeEventListener('click', window.slider.lineClick);
+  };
+
+  var addHandlers = function () {
+    document.addEventListener('keydown', escClickHandler);
+
+    closeButton.addEventListener('click', overlayCloseButtonClickHandler, {once: true});
+
+    plus.addEventListener('click', plusClickHandler);
+
+    minus.addEventListener('click', minusClickHandler);
+
+    imageUploadOverlay.addEventListener('mousedown', imageUploadOverlayClickHandler);
+
+    form.addEventListener('submit', formSubmitHandler);
+    form.addEventListener('focusin', focusHandler);
+    form.addEventListener('focusout', blurHandler);
+
+    hashtagInput.addEventListener('input', window.hashtagValidation.check);
+
+    effectsList.addEventListener('click', window.slider.filterClick);
+
+    sliderPin.addEventListener('mousedown', window.slider.pinClick);
+    sliderPin.addEventListener('keydown', window.slider.pinKeydown);
+
+    sliderLine.addEventListener('click', window.slider.lineClick);
   };
 
   var form = document.querySelector('#upload-select-image');
@@ -281,50 +321,33 @@
   var plus = imageUploadOverlay.querySelector('.scale__control--bigger');
   var minus = imageUploadOverlay.querySelector('.scale__control--smaller');
   var pictureScale = imageUploadOverlay.querySelector('.scale__control--value');
-  var sliderPin = document.querySelector('.effect-level__pin');
-  var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
-  var sliderEffect = document.querySelector('.effect-level__value');
+  var sliderContainer = document.querySelector('.effect-level');
+  var sliderPin = sliderContainer.querySelector('.effect-level__pin');
+  var sliderEffectLevelDepth = sliderContainer.querySelector('.effect-level__depth');
+  var sliderEffect = sliderContainer.querySelector('.effect-level__value');
   var hashtagInput = document.querySelector('.text__hashtags');
-  var commentArea = document.querySelector('.text__description');
   var effectsList = document.querySelector('.effects__list');
-  var sliderLine = document.querySelector('.effect-level__line');
+  var sliderLine = sliderContainer.querySelector('.effect-level__line');
 
   uploadFileField.addEventListener('change', function () {
     var file = uploadFileField.files[0];
-    var fileName = file.name.toLowerCase();
-    var matches = IMAGE_TYPES.some(function (type) {
-      return fileName.endsWith(type);
+
+    var matches = IMAGE_MIME_TYPES.some(function (type) {
+      return type === file.type;
     });
 
     if (matches) {
       var reader = new FileReader();
+
       reader.addEventListener('load', function () {
         uploadImage.src = reader.result;
       });
       reader.readAsDataURL(file);
+
+      imageUploadOverlay.classList.remove('hidden');
+      minus.focus();
+      addHandlers();
     }
-
-    imageUploadOverlay.classList.remove('hidden');
-    minus.focus();
-    document.addEventListener('keydown', escClickHandler);
-    closeButton.addEventListener('click', overlayCloseButtonClickHandler, {once: true});
-    plus.addEventListener('click', plusClickHandler);
-    minus.addEventListener('click', minusClickHandler);
-    imageUploadOverlay.addEventListener('mousedown', imageUploadOverlayClickHandler);
-    form.addEventListener('submit', formSubmitHandler);
-
-    hashtagInput.addEventListener('input', window.hashtagValidation.check);
-
-    hashtagInput.addEventListener('focus', hashtagFocusHandler);
-    hashtagInput.addEventListener('blur', hashtagBlurHandler);
-
-    commentArea.addEventListener('focus', hashtagFocusHandler);
-    commentArea.addEventListener('blur', hashtagBlurHandler);
-
-    effectsList.addEventListener('click', window.slider.filterClick);
-    sliderPin.addEventListener('mousedown', window.slider.pinClick);
-    sliderPin.addEventListener('keydown', window.slider.pinKeydown);
-    sliderLine.addEventListener('click', window.slider.lineClick);
   });
 
   window.editingOverlay = {

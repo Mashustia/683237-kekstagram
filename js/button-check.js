@@ -8,31 +8,19 @@
   };
 
   var escape = function (evt) {
-    if (evt.code === keyMap['esc']) {
-      return true;
-    }
-    return false;
+    return evt.code === keyMap['esc'];
   };
 
   var enter = function (evt) {
-    if (evt.code === keyMap['enter']) {
-      return true;
-    }
-    return false;
+    return evt.code === keyMap['enter'];
   };
 
   var left = function (evt) {
-    if (evt.code === keyMap['arrowLeft']) {
-      return true;
-    }
-    return false;
+    return evt.code === keyMap['arrowLeft'];
   };
 
   var right = function (evt) {
-    if (evt.code === keyMap['arrowRight']) {
-      return true;
-    }
-    return false;
+    return evt.code === keyMap['arrowRight'];
   };
 
   window.buttonCheck = {

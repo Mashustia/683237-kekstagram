@@ -95,10 +95,7 @@
    * @return {boolean} true/false
    */
   var onError = function (errorMessage) {
-    if (errorMessage) {
-      return false;
-    }
-    return true;
+    return !errorMessage;
   };
 
   var bigPictureCloseButtonClickHandler = function () {
