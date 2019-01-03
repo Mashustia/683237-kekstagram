@@ -7,6 +7,11 @@
   var IMG_MIN_SIZE = 25;
   var PROPORTION_MAX_VALUE = 100;
 
+  var ErrorsList = {
+    wrongFormat: 'Неверный формат файла',
+    loadingError: 'Ошибка загрузки файла'
+  };
+
   /**
    * Функция для закрытия формы редактирования изображения по клавише esc
    * @function
@@ -124,6 +129,7 @@
   var errorPopupRemoveClickHandlers = function () {
     document.removeEventListener('keydown', errorPopupCloseKey);
     document.addEventListener('keydown', escClickHandler);
+    form.addEventListener('focusout', blurHandler);
     main.querySelector('.error').removeEventListener('click', errorPopupOverlayClickHandler);
     main.querySelector('.error').remove();
     minus.focus();
@@ -164,19 +170,31 @@
     resetForm();
   };
 
+  var createErrorPopup = function (errorMessage) {
+    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+    main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
+
+    var errorPopup = main.querySelector('.error');
+    var title = errorPopup.querySelector('.error__title');
+
+    title.textContent = errorMessage;
+  };
+
   /**
    *  Функция показывет попап ошибки отправки формы
    *  @function
    */
   var onError = function () {
-    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+    createErrorPopup(ErrorsList.loadingError);
+
+    document.removeEventListener('keydown', escClickHandler);
+    form.removeEventListener('focusout', blurHandler);
+
     var errorPopup = main.querySelector('.error');
     var errorCloseButtons = errorPopup.querySelectorAll('.error__button');
     var newFileButton = errorPopup.querySelector('.error__button--new-file');
     var tryAgain = errorPopup.querySelector('.error__button--try-again');
 
-    main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
-    document.removeEventListener('keydown', escClickHandler);
     document.addEventListener('keydown', errorPopupCloseKey);
     errorCloseButtons.forEach(function (button) {
       button.addEventListener('click', errorPopupButtonClickHandler, {once: true});
@@ -257,9 +275,12 @@
   /**
    * Добавляет слушатель события закрытия окна по escape
    * @function
+   * @param {event} evt
    */
-  var blurHandler = function () {
-    document.addEventListener('keydown', escClickHandler);
+  var blurHandler = function (evt) {
+    if (!evt.target.classList.contains('text__hashtags') || !evt.target.classList.contains('text__description')) {
+      document.addEventListener('keydown', escClickHandler);
+    }
   };
 
   var removeHandlers = function () {
@@ -329,6 +350,27 @@
   var effectsList = document.querySelector('.effects__list');
   var sliderLine = sliderContainer.querySelector('.effect-level__line');
 
+  var removeErrorPopup = function () {
+    var errorPopup = main.querySelector('.error');
+    errorPopup.removeEventListener('click', errorPopupClickHandler);
+    document.removeEventListener('keydown', errorPopupEscKeydownHandler);
+    errorPopup.remove();
+    form.reset();
+    uploadFileField.focus();
+  };
+
+  var errorPopupClickHandler = function (evt) {
+    if (evt.target.classList.contains('error') || evt.target.classList.contains('error__button--new-file')) {
+      removeErrorPopup();
+    }
+  };
+
+  var errorPopupEscKeydownHandler = function (evt) {
+    if (window.buttonCheck.escape(evt)) {
+      removeErrorPopup();
+    }
+  };
+
   uploadFileField.addEventListener('change', function () {
     var file = uploadFileField.files[0];
 
@@ -347,6 +389,17 @@
       imageUploadOverlay.classList.remove('hidden');
       minus.focus();
       addHandlers();
+    } else {
+      createErrorPopup(ErrorsList.wrongFormat);
+
+      var errorPopup = main.querySelector('.error');
+      var tryAgain = errorPopup.querySelector('.error__button--try-again');
+
+      tryAgain.classList.add('hidden');
+
+      errorPopup.addEventListener('click', errorPopupClickHandler);
+
+      document.addEventListener('keydown', errorPopupEscKeydownHandler);
     }
   });
 
