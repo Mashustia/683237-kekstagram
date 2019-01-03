@@ -21,6 +21,7 @@
     clone.querySelector('.picture__img').src = arrayElement.url;
     clone.querySelector('.picture__likes').textContent = arrayElement.likes;
     clone.querySelector('.picture__comments').textContent = arrayElement.comments.length;
+
     return clone;
   };
 
@@ -40,27 +41,29 @@
    * Функция рисует фрагмент в блоке.
    * @function
    * @param {object} place задает куда рисуем.
-   * @param {object} fragmentParameter параметр содержащий фрагмент
+   * @param {object} fragment параметр содержащий фрагмент
    */
-  var drawFragment = function (place, fragmentParameter) {
-    place.appendChild(fragmentParameter);
+  var drawFragment = function (place, fragment) {
+    place.appendChild(fragment);
   };
 
   /**
-   * Функция случайно сортировки массива
+   * Функция случайной сортировки массива
    * @function
    * @param {array} incomingArray массив для сортировки
-   * @return {array}
+   * @return {array} возвращает массив в котором элементы расположены в случайном порядке
    */
   var sortRandom = function (incomingArray) {
     var randomIndex;
     var temp;
+
     for (var i = incomingArray.length - 1; i > 0; i--) {
       randomIndex = Math.floor(Math.random() * (i + 1));
       temp = incomingArray[randomIndex];
       incomingArray[randomIndex] = incomingArray[i];
       incomingArray[i] = temp;
     }
+
     return incomingArray;
   };
 
@@ -115,7 +118,7 @@
   };
 
   /**
-   * Функция показывает блок .img-filters после загрузки всех фотографий с сервера.
+   * Функция показывает блок .img-filters
    * @function
    */
   var checkImageLoading = function () {

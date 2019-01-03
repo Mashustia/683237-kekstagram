@@ -12,6 +12,12 @@
     loadingError: 'Ошибка загрузки файла'
   };
 
+  var ErrorPopupClassList = {
+    overlay: 'error',
+    tryAgain: 'error__button--try-again',
+    newFile: 'error__button--new-file'
+  };
+
   /**
    * Функция для закрытия формы редактирования изображения по клавише esc
    * @function
@@ -23,6 +29,10 @@
     }
   };
 
+  /**
+   * Функция очищает атрибуты формы
+   * @function
+   */
   var clearAttributes = function () {
     pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
 
@@ -35,13 +45,10 @@
     sliderEffectLevelDepth.style.width = PROPORTION_MAX_VALUE + '%';
 
     sliderEffect.setAttribute('value', PROPORTION_MAX_VALUE + '%');
-
-    //uploadFileField.value = '';
-    //uploadFileField.focus();
   };
 
   /**
-   * Функция сбрасывает данные формы и удаляет слушаетли событий
+   * Функция сбрасывает данные формы и удаляет слушатели событий
    * @function
    */
   var resetForm = function () {
@@ -61,6 +68,10 @@
     resetForm();
   };
 
+  /**
+   * Функция удаляет слушатели событий для popup success
+   * @function
+   */
   var successPopupRemoveClickHandlers = function () {
     document.removeEventListener('keydown', successPopupCloseKey);
     main.querySelector('.success__button').removeEventListener('click', successPopupButtonClickHandler);
@@ -72,10 +83,10 @@
   /**
    * Функция для закрытия информационного окна об успешной отправке формы по клавише esc
    * @function
-   * @param {event} successPopupEvtKey - event
+   * @param {event} evt - event
    */
-  var successPopupCloseKey = function (successPopupEvtKey) {
-    if (window.buttonCheck.escape(successPopupEvtKey)) {
+  var successPopupCloseKey = function (evt) {
+    if (window.buttonCheck.escape(evt)) {
       successPopupRemoveClickHandlers();
     }
   };
@@ -91,16 +102,16 @@
   /**
    * Функция для закрытия информационного окна об успешной отправке формы оверлею
    * @function
-   * @param {event} successPopupClickEvt - event
+   * @param {event} evt - event
    */
-  var successPopupOverlayClickHandler = function (successPopupClickEvt) {
-    if (successPopupClickEvt.target.classList.contains('success')) {
+  var successPopupOverlayClickHandler = function (evt) {
+    if (evt.target.classList.contains('success')) {
       successPopupRemoveClickHandlers();
     }
   };
 
   /**
-   * Функция создает попап успешной отправки данных
+   * Функция создает попап при успешной отправке данных
    * @function
    */
   var popupSucces = function () {
@@ -126,50 +137,22 @@
     popupSucces();
   };
 
-  var errorPopupRemoveClickHandlers = function () {
-    document.removeEventListener('keydown', errorPopupCloseKey);
-    document.addEventListener('keydown', escClickHandler);
-    form.addEventListener('focusout', blurHandler);
-    main.querySelector('.error').removeEventListener('click', errorPopupOverlayClickHandler);
-    main.querySelector('.error').remove();
-    minus.focus();
-  };
-
   /**
    * Функция закрытия попапа Error по клавише esc
    * @function
-   * @param {event} errorKey
+   * @param {event} evt
    */
-  var errorPopupCloseKey = function (errorKey) {
-    if (window.buttonCheck.escape(errorKey)) {
-      errorPopupRemoveClickHandlers();
+  var errorPopupCloseKey = function (evt) {
+    if (window.buttonCheck.escape(evt)) {
+      removeErrorPopup();
     }
   };
 
   /**
-   * Функция закрытия попапа Error по кнопке error__button
+   * Функция создает попап с информация об ошибке
    * @function
+   * @param {object} errorMessage - сообщение об ошибке, которое нужно вывести
    */
-  var errorPopupButtonClickHandler = function () {
-    errorPopupRemoveClickHandlers();
-    minus.focus();
-  };
-
-  /**
-   * Функция для закрытия закрытия попапа Error кликом по оверлею
-   * @function
-   * @param {event} errorPopupClickEvt - event
-   */
-  var errorPopupOverlayClickHandler = function (errorPopupClickEvt) {
-    if (errorPopupClickEvt.target.classList.contains('error')) {
-      errorPopupRemoveClickHandlers();
-    }
-  };
-
-  var newFileButtonClickHandler = function () {
-    resetForm();
-  };
-
   var createErrorPopup = function (errorMessage) {
     var errorTemplate = document.querySelector('#error').content.querySelector('.error');
     main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
@@ -181,26 +164,55 @@
   };
 
   /**
-   *  Функция показывет попап ошибки отправки формы
+   * Функция удаляет попап с информация об ошибке
+   * @function
+   */
+  var removeErrorPopup = function () {
+    var errorPopup = main.querySelector('.error');
+
+    document.removeEventListener('keydown', errorPopupCloseKey);
+    errorPopup.removeEventListener('click', errorPopupClickHandler);
+
+    document.addEventListener('keydown', escClickHandler);
+    form.addEventListener('focusout', blurHandler);
+
+    main.querySelector('.error').remove();
+    minus.focus();
+  };
+
+  /**
+   * Слушатель события click на попапе error
+   * @function
+   * @param {event} evt событие
+   */
+  var errorPopupClickHandler = function (evt) {
+    var classList = evt.target.classList;
+
+    if (classList.contains(ErrorPopupClassList.newFile)) {
+      removeErrorPopup();
+      resetForm();
+
+    } else if (classList.contains(ErrorPopupClassList.overlay) || classList.contains(ErrorPopupClassList.tryAgain)) {
+      removeErrorPopup();
+    }
+  };
+
+  /**
+   *  Функция выполняется в случае ошибки отправки формы
    *  @function
    */
   var onError = function () {
     createErrorPopup(ErrorsList.loadingError);
 
+    var errorPopup = main.querySelector('.error');
+    var tryAgain = errorPopup.querySelector('.error__button--try-again');
+
     document.removeEventListener('keydown', escClickHandler);
     form.removeEventListener('focusout', blurHandler);
 
-    var errorPopup = main.querySelector('.error');
-    var errorCloseButtons = errorPopup.querySelectorAll('.error__button');
-    var newFileButton = errorPopup.querySelector('.error__button--new-file');
-    var tryAgain = errorPopup.querySelector('.error__button--try-again');
-
+    errorPopup.addEventListener('click', errorPopupClickHandler);
     document.addEventListener('keydown', errorPopupCloseKey);
-    errorCloseButtons.forEach(function (button) {
-      button.addEventListener('click', errorPopupButtonClickHandler, {once: true});
-    });
-    errorPopup.addEventListener('click', errorPopupOverlayClickHandler);
-    newFileButton.addEventListener('click', newFileButtonClickHandler, {once: true});
+
     tryAgain.focus();
   };
 
@@ -220,8 +232,10 @@
    */
   var plusClickHandler = function () {
     var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
+
     if (defaultValue < IMG_MAX_SIZE) {
       var newValue = defaultValue + IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
+
       pictureScale.setAttribute('value', newValue);
       uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
     }
@@ -233,8 +247,10 @@
    */
   var minusClickHandler = function () {
     var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
+
     if (defaultValue > IMG_MIN_SIZE) {
       var newValue = defaultValue - IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
+
       pictureScale.setAttribute('value', newValue);
       uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
     }
@@ -283,6 +299,10 @@
     }
   };
 
+  /**
+   * Функция удаляет все слушатели событий для формы
+   * @function
+   */
   var removeHandlers = function () {
     document.removeEventListener('keydown', escClickHandler);
 
@@ -306,6 +326,10 @@
     sliderLine.removeEventListener('click', window.slider.lineClick);
   };
 
+  /**
+   * Функция добавляет слушатели событий для формы
+   * @function
+   */
   var addHandlers = function () {
     document.addEventListener('keydown', escClickHandler);
 
@@ -331,6 +355,44 @@
     sliderLine.addEventListener('click', window.slider.lineClick);
   };
 
+  /**
+   * Функция удаляет попап с информацией о неверном формате загружаемого файла
+   * @function
+   */
+  var removeFormatErrorPopup = function () {
+    var errorPopup = main.querySelector('.error');
+
+    errorPopup.removeEventListener('click', errorFormatPopupClickHandler);
+    document.removeEventListener('keydown', errorPopupEscKeydownHandler);
+    errorPopup.remove();
+    form.reset();
+    uploadFileField.focus();
+  };
+
+  /**
+   * Слушатель события click на попапе с информацией о неверном формате загружаемого файла
+   * @function
+   * @param {ebent} evt событие
+   */
+  var errorFormatPopupClickHandler = function (evt) {
+    var classList = evt.target.classList;
+
+    if (classList.contains(ErrorPopupClassList.overlay) || classList.contains(ErrorPopupClassList.newFile)) {
+      removeFormatErrorPopup();
+    }
+  };
+
+  /**
+   * Слушатель события keydown на попапе с информацией о неверном формате загружаемого файла
+   * @function
+   * @param {ebent} evt событие
+   */
+  var errorPopupEscKeydownHandler = function (evt) {
+    if (window.buttonCheck.escape(evt)) {
+      removeFormatErrorPopup();
+    }
+  };
+
   var form = document.querySelector('#upload-select-image');
   var fragment = document.createDocumentFragment();
   var imageUploadOverlay = form.querySelector('.img-upload__overlay');
@@ -349,27 +411,6 @@
   var hashtagInput = document.querySelector('.text__hashtags');
   var effectsList = document.querySelector('.effects__list');
   var sliderLine = sliderContainer.querySelector('.effect-level__line');
-
-  var removeErrorPopup = function () {
-    var errorPopup = main.querySelector('.error');
-    errorPopup.removeEventListener('click', errorPopupClickHandler);
-    document.removeEventListener('keydown', errorPopupEscKeydownHandler);
-    errorPopup.remove();
-    form.reset();
-    uploadFileField.focus();
-  };
-
-  var errorPopupClickHandler = function (evt) {
-    if (evt.target.classList.contains('error') || evt.target.classList.contains('error__button--new-file')) {
-      removeErrorPopup();
-    }
-  };
-
-  var errorPopupEscKeydownHandler = function (evt) {
-    if (window.buttonCheck.escape(evt)) {
-      removeErrorPopup();
-    }
-  };
 
   uploadFileField.addEventListener('change', function () {
     var file = uploadFileField.files[0];
@@ -394,11 +435,12 @@
 
       var errorPopup = main.querySelector('.error');
       var tryAgain = errorPopup.querySelector('.error__button--try-again');
+      var newFile = errorPopup.querySelector('.error__button--new-file');
 
       tryAgain.classList.add('hidden');
+      newFile.focus();
 
-      errorPopup.addEventListener('click', errorPopupClickHandler);
-
+      errorPopup.addEventListener('click', errorFormatPopupClickHandler);
       document.addEventListener('keydown', errorPopupEscKeydownHandler);
     }
   });

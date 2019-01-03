@@ -43,11 +43,11 @@
    * 4) Хештегов не может быть больше пяти
    * 5) Хэштеги разделяются пробелами
    * @function
-   * @param {array} checkArray проверяемый массив
+   * @param {array} checkedArray проверяемый массив
    * @param {object} eventAttribute - evt.target
    */
-  var checkHashtagLength = function (checkArray, eventAttribute) {
-    checkArray.forEach(function (hashtag, index) {
+  var checkHashtagLength = function (checkedArray, eventAttribute) {
+    checkedArray.forEach(function (hashtag, index) {
       if (hashtag.charAt(0) !== HASHTAG_SYMBOL) {
         eventAttribute.setCustomValidity(WarningLists.FIRST_SYMBOL);
 
@@ -72,14 +72,14 @@
   /**
    * Функция проверят, что в массиве нет повторяющихся значений
    * @function
-   * @param {array} checkArray проверяемый массив
+   * @param {array} checkedArray проверяемый массив
    * @param {object} eventAttribute - evt.target
    * @return {boolean} false в случае ошибки в тегах, true, когда теги верны
    */
-  var checkHashtagRepeat = function (checkArray, eventAttribute) {
-    var uniuniqueHashtagArray = chooseUniqueElements(checkArray);
+  var checkHashtagRepeat = function (checkedArray, eventAttribute) {
+    var uniuniqueHashtagArray = chooseUniqueElements(checkedArray);
 
-    if (uniuniqueHashtagArray.length !== checkArray.length) {
+    if (uniuniqueHashtagArray.length !== checkedArray.length) {
       eventAttribute.setCustomValidity(WarningLists.DONT_REPEAT);
       return false;
     }
@@ -102,6 +102,11 @@
     return Object.keys(obj);
   };
 
+  /**
+   * Слушатель события на input
+   * @function
+   * @param {event} evt
+   */
   var hashtagInputCheckHandler = function (evt) {
     var hashtagArray = splitHashtagString(hashtagInput);
     var hashtagTarget = evt.target;

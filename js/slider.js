@@ -47,24 +47,24 @@
   };
 
   /**
-   * Функция рассчитывает интенсивность эффекта (Хром, Сепия, Фобос...) в зависимости от положения пина.
+   * Функция рассчитывает координаты пина слайдера
    * @function
    * @param {object} startingCoordinate координата пина на нуле.
    * @param {object} clickPoint задает event.
-   * @return {number} возвращает интенсивность фильтра от 0 до 100.
+   * @return {number} возвращает координаты пина от 0 до 100.
    */
   var getPinPoint = function (startingCoordinate, clickPoint) {
-    var saturationValue = (clickPoint.clientX - startingCoordinate) * PROPORTION_MAX_VALUE / CONTAINER_WIDTH;
+    var pinСoordinates = (clickPoint.clientX - startingCoordinate) * PROPORTION_MAX_VALUE / CONTAINER_WIDTH;
 
-    if (saturationValue < PROPORTION_MIN_VALUE) {
-      saturationValue = PROPORTION_MIN_VALUE;
+    if (pinСoordinates < PROPORTION_MIN_VALUE) {
+      pinСoordinates = PROPORTION_MIN_VALUE;
     }
 
-    if (saturationValue > PROPORTION_MAX_VALUE) {
-      saturationValue = PROPORTION_MAX_VALUE;
+    if (pinСoordinates > PROPORTION_MAX_VALUE) {
+      pinСoordinates = PROPORTION_MAX_VALUE;
     }
 
-    return saturationValue;
+    return pinСoordinates;
   };
 
   /**
@@ -91,26 +91,26 @@
   };
 
   /**
-   * Функция добавляет объекту checkedTag стили
-   * @param {number} PinPointValue значение ползунка слайдера
-   * @param {object} checkedTag тег, которому добавляются стили
-   * @param {object} filterPropertiesList список объектов
+   * Функция добавляет объекту image стили
+   * @param {number} PinPointValue координаты пина слайдера
+   * @param {object} image картинка, которой добавляются стили
+   * @param {object} filterProperties данные о фильтрах
    */
-  var addFilters = function (PinPointValue, checkedTag, filterPropertiesList) {
-    var filterName = checkedTag.className.slice(checkedTag.className.indexOf('--') + 2);
-    var filter = filterPropertiesList[filterName];
+  var addFilters = function (PinPointValue, image, filterProperties) {
+    var filterName = image.className.slice(image.className.indexOf('--') + 2);
+    var filter = filterProperties[filterName];
 
-    checkedTag.style.filter = filter.cssProperty + '(' + returnPercent(PinPointValue, filter.maxValue) + filter.units + ')';
+    image.style.filter = filter.cssProperty + '(' + returnPercent(PinPointValue, filter.maxValue) + filter.units + ')';
   };
 
   /**
    * Функция скрывает слайдер для effects__preview--none.
    * @function
-   * @param {object} checkedArgument параметр, класс которого проверяем.
-   * @param {object} mustBeHidden параметр, который должен быть скрыт.
+   * @param {object} image картинка, класс которой проверяем.
+   * @param {object} mustBeHidden объект, которому задается класс hidden
    */
-  var hideSlider = function (checkedArgument, mustBeHidden) {
-    if (checkedArgument.classList.contains(Filter['none'].class)) {
+  var hideSlider = function (image, mustBeHidden) {
+    if (image.classList.contains(Filter['none'].class)) {
       mustBeHidden.classList.add('hidden');
     } else {
       mustBeHidden.classList.remove('hidden');
@@ -130,8 +130,8 @@
   /**
    * Функция устанавливает объекту положение слева
    * @function
-   * @param {object} tagName - объект, которому нужно добавить стили
-   * @param {number} styleValue - значение стиля
+   * @param {object} tagName - объект, которому нужно добавить style.left
+   * @param {number} styleValue - числовое значение
    */
   var setStyleLeft = function (tagName, styleValue) {
     tagName.style.left = styleValue + '%';
@@ -140,8 +140,8 @@
   /**
    * Функция устанавливает объекту ширину
    * @function
-   * @param {object} tagName - объект, которому нужно добавить стили
-   * @param {number} styleValue - значение стиля
+   * @param {object} tagName - объект, которому нужно добавить style.width
+   * @param {number} styleValue - числовое значение
    */
   var setStyleWidth = function (tagName, styleValue) {
     tagName.style.width = styleValue + '%';
@@ -150,7 +150,7 @@
   /**
    * Функция задает положение пина слайдера, добавляет фильтры картинке, задает инпуту effect-level__value значение интенсивности фильтра
    * @function
-   * @param {number} pointPosition значение интенсивности фильтра
+   * @param {number} pointPosition координаты пина слайдера
    */
   var setSliderProperties = function (pointPosition) {
     setStyleLeft(sliderPin, pointPosition);
@@ -245,7 +245,7 @@
   };
 
   /**
-   * Слушатель события Click для линии слайдера
+   * Слушатель события сlick для линии слайдера
    * @function
    * @param {event} evt
    */
