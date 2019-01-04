@@ -7,22 +7,64 @@
   var STEP = 10;
   var SLIDER_EFFECT_INPUT_DEFAULT = '100';
 
+  var Filter = {
+    'none': {
+      class: 'effects__preview--none',
+      cssProperty: 'none',
+      units: '',
+      maxValue: 1
+    },
+    'chrome': {
+      class: 'effects__preview--chrome',
+      cssProperty: 'grayscale',
+      units: '',
+      maxValue: 1
+    },
+    'sepia': {
+      class: 'effects__preview--sepia',
+      cssProperty: 'sepia',
+      units: '',
+      maxValue: 1
+    },
+    'marvin': {
+      class: 'effects__preview--marvin',
+      cssProperty: 'invert',
+      units: '%',
+      maxValue: 100
+    },
+    'phobos': {
+      class: 'effects__preview--phobos',
+      cssProperty: 'blur',
+      units: 'px',
+      maxValue: 3
+    },
+    'heat': {
+      class: 'effects__preview--heat',
+      cssProperty: 'brightness',
+      units: '',
+      maxValue: 3
+    }
+  };
+
   /**
-   * Функция рассчитывает интенсивность эффекта (Хром, Сепия, Фобос...) в зависимости от положения пина.
+   * Функция рассчитывает координаты пина слайдера
    * @function
    * @param {object} startingCoordinate координата пина на нуле.
    * @param {object} clickPoint задает event.
-   * @return {number} возвращает интенсивность фильтра от 0 до 100.
+   * @return {number} возвращает координаты пина от 0 до 100.
    */
   var getPinPoint = function (startingCoordinate, clickPoint) {
-    var saturationValue = (clickPoint.clientX - startingCoordinate) * PROPORTION_MAX_VALUE / CONTAINER_WIDTH;
-    if (saturationValue < PROPORTION_MIN_VALUE) {
-      saturationValue = PROPORTION_MIN_VALUE;
+    var pinСoordinates = (clickPoint.clientX - startingCoordinate) * PROPORTION_MAX_VALUE / CONTAINER_WIDTH;
+
+    if (pinСoordinates < PROPORTION_MIN_VALUE) {
+      pinСoordinates = PROPORTION_MIN_VALUE;
     }
-    if (saturationValue > PROPORTION_MAX_VALUE) {
-      saturationValue = PROPORTION_MAX_VALUE;
+
+    if (pinСoordinates > PROPORTION_MAX_VALUE) {
+      pinСoordinates = PROPORTION_MAX_VALUE;
     }
-    return saturationValue;
+
+    return pinСoordinates;
   };
 
   /**
@@ -33,6 +75,7 @@
    */
   var getLeftCoords = function (elem) {
     var box = elem.getBoundingClientRect();
+
     return box.left + pageXOffset;
   };
 
@@ -44,29 +87,30 @@
    * @return {number} возвращает интенсивность фильтра в прцентах от filterMaxValue.
    */
   var returnPercent = function (PinPointValue, filterMaxValue) {
-    var percent = PinPointValue * (filterMaxValue / PROPORTION_MAX_VALUE);
-    return percent;
+    return PinPointValue * (filterMaxValue / PROPORTION_MAX_VALUE);
   };
 
   /**
-   * Функция добавляет объекту checkedTag стили
-   * @param {number} PinPointValue значение ползунка слайдера
-   * @param {objeckt} checkedTag тег, которому добавляются стили
-   * @param {objeckt} filterPropertiesList список объектов
+   * Функция добавляет объекту image стили
+   * @param {number} PinPointValue координаты пина слайдера
+   * @param {object} image картинка, которой добавляются стили
+   * @param {object} filterProperties данные о фильтрах
    */
-  var addFilters = function (PinPointValue, checkedTag, filterPropertiesList) {
-    var filter = filterPropertiesList[checkedTag.className];
-    checkedTag.style.filter = filter.cssProperty + '(' + returnPercent(PinPointValue, filter.maxValue) + filter.units + ')';
+  var addFilters = function (PinPointValue, image, filterProperties) {
+    var filterName = image.className.slice(image.className.indexOf('--') + 2);
+    var filter = filterProperties[filterName];
+
+    image.style.filter = filter.cssProperty + '(' + returnPercent(PinPointValue, filter.maxValue) + filter.units + ')';
   };
 
   /**
    * Функция скрывает слайдер для effects__preview--none.
    * @function
-   * @param {object} checkedArgument параметр, класс которого проверяем.
-   * @param {object} mustBeHidden параметр, который должен быть скрыт.
+   * @param {object} image картинка, класс которой проверяем.
+   * @param {object} mustBeHidden объект, которому задается класс hidden
    */
-  var hideSlider = function (checkedArgument, mustBeHidden) {
-    if (checkedArgument.classList.contains(filterMap['none'])) {
+  var hideSlider = function (image, mustBeHidden) {
+    if (image.classList.contains(Filter['none'].class)) {
       mustBeHidden.classList.add('hidden');
     } else {
       mustBeHidden.classList.remove('hidden');
@@ -86,8 +130,8 @@
   /**
    * Функция устанавливает объекту положение слева
    * @function
-   * @param {object} tagName - объект, которому нужно добавить стили
-   * @param {number} styleValue - значение стиля
+   * @param {object} tagName - объект, которому нужно добавить style.left
+   * @param {number} styleValue - числовое значение
    */
   var setStyleLeft = function (tagName, styleValue) {
     tagName.style.left = styleValue + '%';
@@ -96,8 +140,8 @@
   /**
    * Функция устанавливает объекту ширину
    * @function
-   * @param {object} tagName - объект, которому нужно добавить стили
-   * @param {number} styleValue - значение стиля
+   * @param {object} tagName - объект, которому нужно добавить style.width
+   * @param {number} styleValue - числовое значение
    */
   var setStyleWidth = function (tagName, styleValue) {
     tagName.style.width = styleValue + '%';
@@ -106,19 +150,19 @@
   /**
    * Функция задает положение пина слайдера, добавляет фильтры картинке, задает инпуту effect-level__value значение интенсивности фильтра
    * @function
-   * @param {number} pointPosition значение интенсивности фильтра
+   * @param {number} pointPosition координаты пина слайдера
    */
   var setSliderProperties = function (pointPosition) {
     setStyleLeft(sliderPin, pointPosition);
     setStyleWidth(sliderEffectLevelDepth, pointPosition);
-    addFilters(pointPosition, uploadImage, filterProperties);
+    addFilters(pointPosition, uploadImage, Filter);
     sliderEffect.setAttribute('value', pointPosition);
   };
 
   /**
    * Слушатель события клика для фильтров
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var filterClickHandler = function (evt) {
     if (evt.target.classList.contains('effects__radio')) {
@@ -127,7 +171,7 @@
       Array.from(effectsList.querySelectorAll('.effects__radio')).forEach(function (input) {
         if (input.checked) {
           uploadImage.removeAttribute('class');
-          uploadImage.classList.add(filterMap[input.value]);
+          uploadImage.classList.add(Filter[input.value].class);
           uploadImage.style.filter = null;
         }
       });
@@ -142,11 +186,16 @@
   /**
    * Слушатель события Mousedown для пина слайдера
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var sliderPinMousedownHandler = function (evt) {
     var startPinPoint = getPinPoint(getLeftCoords(sliderLine), evt);
 
+    /**
+     * Слушатель события Mousemove для пина слайдера
+     * @function
+     * @param {event} moveEvt
+     */
     var onMouseMove = function (moveEvt) {
       var shift = getPinPoint(getLeftCoords(sliderLine), moveEvt) - startPinPoint;
       var roundNewPinPointValue = roundNumber((startPinPoint + shift), ROUNDING_VALUE);
@@ -156,6 +205,11 @@
       startPinPoint = getPinPoint(getLeftCoords(sliderLine), moveEvt);
     };
 
+    /**
+     * Слушатель события Mouseup для пина слайдера
+     * @function
+     * @param {event} moveEvt
+     */
     var onMouseUp = function () {
       var roundStartPinPointValue = roundNumber(startPinPoint, ROUNDING_VALUE);
 
@@ -172,36 +226,28 @@
   /**
    * Слушатель события Keydown для пина слайдера
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var sliderPinKeydownHandler = function (evt) {
     var start = parseInt((sliderPin.style.left).slice(0, -1), 10);
 
     if (window.buttonCheck.left(evt)) {
-      var nextPointLeft = start - STEP;
-
-      if (start <= STEP) {
-        nextPointLeft = PROPORTION_MIN_VALUE;
-      }
+      var nextPointLeft = start <= STEP ? PROPORTION_MIN_VALUE : start - STEP;
 
       setSliderProperties(nextPointLeft);
     }
 
     if (window.buttonCheck.right(evt)) {
-      var nextPointRight = start + STEP;
-
-      if (start >= (PROPORTION_MAX_VALUE - STEP)) {
-        nextPointRight = PROPORTION_MAX_VALUE;
-      }
+      var nextPointRight = start >= (PROPORTION_MAX_VALUE - STEP) ? PROPORTION_MAX_VALUE : start + STEP;
 
       setSliderProperties(nextPointRight);
     }
   };
 
   /**
-   * Слушатель события Click для линии слайдера
+   * Слушатель события сlick для линии слайдера
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var sliderLineClickHandler = function (evt) {
     if (evt.target !== sliderPin) {
@@ -210,48 +256,6 @@
 
       setSliderProperties(roundNewClickPointtValue);
     }
-  };
-
-  var filterProperties = {
-    'effects__preview--none': {
-      cssProperty: 'none',
-      units: '',
-      maxValue: 1
-    },
-    'effects__preview--chrome': {
-      cssProperty: 'grayscale',
-      units: '',
-      maxValue: 1
-    },
-    'effects__preview--sepia': {
-      cssProperty: 'sepia',
-      units: '',
-      maxValue: 1
-    },
-    'effects__preview--marvin': {
-      cssProperty: 'invert',
-      units: '%',
-      maxValue: 100
-    },
-    'effects__preview--phobos': {
-      cssProperty: 'blur',
-      units: 'px',
-      maxValue: 3
-    },
-    'effects__preview--heat': {
-      cssProperty: 'brightness',
-      units: '',
-      maxValue: 3
-    }
-  };
-
-  var filterMap = {
-    'none': 'effects__preview--none',
-    'chrome': 'effects__preview--chrome',
-    'sepia': 'effects__preview--sepia',
-    'marvin': 'effects__preview--marvin',
-    'phobos': 'effects__preview--phobos',
-    'heat': 'effects__preview--heat'
   };
 
   var imgPreviewWrapper = document.querySelector('.img-upload__preview');

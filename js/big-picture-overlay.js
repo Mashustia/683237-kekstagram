@@ -18,13 +18,14 @@
    * Функция для заполнения big-picture.
    * @function
    * @param {array} userArray  массив из которого берется информация.
-   * @param {object} placeToRender место для вставки даных
+   * @param {object} placeToRender поля для вставки даных
    */
   var renderBigPicture = function (userArray, placeToRender) {
     placeToRender.querySelector('.big-picture__img').querySelector('img').src = userArray.url;
     placeToRender.querySelector('.likes-count').textContent = userArray.likes;
     placeToRender.querySelector('.comments-count').textContent = userArray.comments.length;
     placeToRender.querySelector('.social__caption').textContent = userArray.description;
+
     if (userArray.comments.length < DEFAULT_COMMENTS_VALUE) {
       placeToRender.querySelector('.comments-count--shown').textContent = userArray.comments.length;
     } else {
@@ -35,12 +36,13 @@
   /**
    * Функция создает комментарии
    * @function
-   * @param {array} arrayParametr
+   * @param {array} arrayObject - объект массива
    * @param {object} templateElement
    */
-  var renderComment = function (arrayParametr, templateElement) {
-    arrayParametr.comments.forEach(function (comment) {
+  var renderComment = function (arrayObject, templateElement) {
+    arrayObject.comments.forEach(function (comment) {
       var commentItem = templateElement.cloneNode(true);
+
       commentItem.querySelector('.social__picture').src = comment.avatar;
       commentItem.querySelector('.social__text').textContent = comment.message;
       fragment.appendChild(commentItem);
@@ -95,22 +97,32 @@
    * @return {boolean} true/false
    */
   var onError = function (errorMessage) {
-    if (errorMessage) {
-      return false;
-    }
-    return true;
+    return !errorMessage;
   };
 
+  /**
+   * Слушатель события click на кнопке закрытия big-picture
+   * @function
+   */
   var bigPictureCloseButtonClickHandler = function () {
     removeBigPictureClickHandlers();
   };
 
-  var bigPictureOverlayClickHandler = function (bigPictureOverlayClickEvt) {
-    if (bigPictureOverlayClickEvt.target.classList.contains('big-picture')) {
+  /**
+   * Слушатель события click на оверлее big-picture
+   * @function
+   * @param {event} evt
+   */
+  var bigPictureOverlayClickHandler = function (evt) {
+    if (evt.target.classList.contains('big-picture')) {
       removeBigPictureClickHandlers();
     }
   };
 
+  /**
+   * Функция удаляет слушатели события для big-picture
+   * @function
+   */
   var removeBigPictureClickHandlers = function () {
     bigPicture.classList.add('hidden');
     commentsLoader.classList.remove('hidden');
@@ -130,18 +142,21 @@
     var comments = bigPicture.querySelectorAll('.social__comment');
     var commentsShown = bigPicture.querySelector('.comments-count--shown');
     var count = parseInt(commentsShown.textContent, 10) + parseInt(NEXT_COMMENT_VALUE, 10);
+
     if (count >= comments.length) {
       count = comments.length;
       commentsLoader.classList.add('hidden');
     }
+
     Array.from(comments).slice(commentsShown.textContent, count).forEach(function (comment) {
       comment.removeAttribute('style');
     });
+
     commentsShown.textContent = count;
   };
 
   /**
-   * Слушаетль события для .comments-loader
+   * Слушаетль события click для .comments-loader
    * @function
    */
   var commentsLoaderClickHandler = function () {
@@ -154,9 +169,11 @@
    */
   var hideComments = function () {
     var comments = bigPicture.querySelectorAll('.social__comment');
+
     Array.from(comments).slice(DEFAULT_COMMENTS_VALUE).forEach(function (comment) {
       comment.style.display = 'none';
     });
+
     if (comments.length <= DEFAULT_COMMENTS_VALUE) {
       commentsLoader.classList.add('hidden');
     }

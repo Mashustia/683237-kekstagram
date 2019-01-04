@@ -1,11 +1,22 @@
 'use strict';
 (function () {
-  var IMAGE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+  var IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg', 'image/webp'];
   var IMAGE_SCALE_CHANGE = 25;
   var PERCENT_SYMBOL = '%';
   var IMG_MAX_SIZE = 100;
   var IMG_MIN_SIZE = 25;
   var PROPORTION_MAX_VALUE = 100;
+
+  var ErrorsList = {
+    wrongFormat: 'Неверный формат файла',
+    loadingError: 'Ошибка загрузки файла'
+  };
+
+  var ErrorPopupClassList = {
+    overlay: 'error',
+    tryAgain: 'error__button--try-again',
+    newFile: 'error__button--new-file'
+  };
 
   /**
    * Функция для закрытия формы редактирования изображения по клавише esc
@@ -19,42 +30,34 @@
   };
 
   /**
-   * Функция сбрасывает данные формы и удаляет слушаетли событий
+   * Функция очищает атрибуты формы
+   * @function
+   */
+  var clearAttributes = function () {
+    pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
+
+    uploadImage.removeAttribute('class');
+    uploadImage.removeAttribute('style');
+    uploadImage.src = '';
+
+    sliderPin.style.left = PROPORTION_MAX_VALUE + '%';
+
+    sliderEffectLevelDepth.style.width = PROPORTION_MAX_VALUE + '%';
+
+    sliderEffect.setAttribute('value', PROPORTION_MAX_VALUE + '%');
+  };
+
+  /**
+   * Функция сбрасывает данные формы и удаляет слушатели событий
    * @function
    */
   var resetForm = function () {
     imageUploadOverlay.classList.add('hidden');
-    imageUploadOverlay.removeEventListener('mousedown', imageUploadOverlayClickHandler);
-    document.removeEventListener('keydown', escClickHandler);
-    form.removeEventListener('submit', formSubmitHandler);
+    sliderContainer.classList.add('hidden');
 
-    plus.removeEventListener('click', plusClickHandler);
-    minus.removeEventListener('click', minusClickHandler);
-
-    hashtagInput.removeEventListener('input', window.hashtagValidation.check);
-    hashtagInput.removeEventListener('focus', hashtagFocusHandler);
-    hashtagInput.removeEventListener('blur', hashtagBlurHandler);
-
-    commentArea.removeEventListener('focus', hashtagFocusHandler);
-    commentArea.removeEventListener('blur', hashtagBlurHandler);
-
-    effectsList.removeEventListener('click', window.slider.filterClick);
-
-    sliderPin.removeEventListener('mousedown', window.slider.pinClick);
-    sliderPin.removeEventListener('keydown', window.slider.pinKeydown);
-    sliderLine.removeEventListener('click', window.slider.lineClick);
-
+    removeHandlers();
     form.reset();
-
-    pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
-    uploadImage.removeAttribute('class');
-    uploadImage.removeAttribute('style');
-    uploadImage.src = '';
-    sliderPin.style.left = PROPORTION_MAX_VALUE + '%';
-    sliderEffectLevelDepth.style.width = PROPORTION_MAX_VALUE + '%';
-    uploadFileField.value = '';
-    uploadFileField.focus();
-    sliderEffect.setAttribute('value', PROPORTION_MAX_VALUE + '%');
+    clearAttributes();
   };
 
   /**
@@ -65,6 +68,10 @@
     resetForm();
   };
 
+  /**
+   * Функция удаляет слушатели событий для popup success
+   * @function
+   */
   var successPopupRemoveClickHandlers = function () {
     document.removeEventListener('keydown', successPopupCloseKey);
     main.querySelector('.success__button').removeEventListener('click', successPopupButtonClickHandler);
@@ -76,10 +83,10 @@
   /**
    * Функция для закрытия информационного окна об успешной отправке формы по клавише esc
    * @function
-   * @param {event} successPopupEvtKey - event
+   * @param {event} evt - event
    */
-  var successPopupCloseKey = function (successPopupEvtKey) {
-    if (window.buttonCheck.escape(successPopupEvtKey)) {
+  var successPopupCloseKey = function (evt) {
+    if (window.buttonCheck.escape(evt)) {
       successPopupRemoveClickHandlers();
     }
   };
@@ -95,16 +102,16 @@
   /**
    * Функция для закрытия информационного окна об успешной отправке формы оверлею
    * @function
-   * @param {event} successPopupClickEvt - event
+   * @param {event} evt - event
    */
-  var successPopupOverlayClickHandler = function (successPopupClickEvt) {
-    if (successPopupClickEvt.target.classList.contains('success')) {
+  var successPopupOverlayClickHandler = function (evt) {
+    if (evt.target.classList.contains('success')) {
       successPopupRemoveClickHandlers();
     }
   };
 
   /**
-   * Функция создает попап успешной отправки данных
+   * Функция создает попап при успешной отправке данных
    * @function
    */
   var popupSucces = function () {
@@ -130,70 +137,82 @@
     popupSucces();
   };
 
-  var errorPopupRemoveClickHandlers = function () {
+  /**
+   * Функция закрытия попапа Error по клавише esc
+   * @function
+   * @param {event} evt
+   */
+  var errorPopupCloseKey = function (evt) {
+    if (window.buttonCheck.escape(evt)) {
+      removeErrorPopup();
+    }
+  };
+
+  /**
+   * Функция создает попап с информация об ошибке
+   * @function
+   * @param {object} errorMessage - сообщение об ошибке, которое нужно вывести
+   */
+  var createErrorPopup = function (errorMessage) {
+    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+    main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
+
+    var errorPopup = main.querySelector('.error');
+    var title = errorPopup.querySelector('.error__title');
+
+    title.textContent = errorMessage;
+  };
+
+  /**
+   * Функция удаляет попап с информация об ошибке
+   * @function
+   */
+  var removeErrorPopup = function () {
+    var errorPopup = main.querySelector('.error');
+
     document.removeEventListener('keydown', errorPopupCloseKey);
+    errorPopup.removeEventListener('click', errorPopupClickHandler);
+
     document.addEventListener('keydown', escClickHandler);
-    main.querySelector('.error').removeEventListener('click', errorPopupOverlayClickHandler);
+    form.addEventListener('focusout', blurHandler);
+
     main.querySelector('.error').remove();
     minus.focus();
   };
 
   /**
-   * Функция закрытия попапа Error по клавише esc
+   * Слушатель события click на попапе error
    * @function
-   * @param {evt} errorKey
+   * @param {event} evt событие
    */
-  var errorPopupCloseKey = function (errorKey) {
-    if (window.buttonCheck.escape(errorKey)) {
-      errorPopupRemoveClickHandlers();
+  var errorPopupClickHandler = function (evt) {
+    var classList = evt.target.classList;
+
+    if (classList.contains(ErrorPopupClassList.newFile)) {
+      removeErrorPopup();
+      resetForm();
+
+    } else if (classList.contains(ErrorPopupClassList.overlay) || classList.contains(ErrorPopupClassList.tryAgain)) {
+      removeErrorPopup();
     }
   };
 
   /**
-   * Функция закрытия попапа Error по кнопке error__button
-   * @function
-   */
-  var errorPopupButtonClickHandler = function () {
-    errorPopupRemoveClickHandlers();
-    minus.focus();
-  };
-
-  /**
-   * Функция для закрытия закрытия попапа Error кликом по оверлею
-   * @function
-   * @param {event} errorPopupClickEvt - event
-   */
-  var errorPopupOverlayClickHandler = function (errorPopupClickEvt) {
-    if (errorPopupClickEvt.target.classList.contains('error')) {
-      errorPopupRemoveClickHandlers();
-    }
-  };
-
-  var newFileButtonClickHandler = function () {
-    resetForm();
-  };
-
-  /**
-   *  Функция показывет попап ошибки отправки формы
+   *  Функция выполняется в случае ошибки отправки формы
    *  @function
    */
   var onError = function () {
-    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-
-    main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
-    document.removeEventListener('keydown', escClickHandler);
+    createErrorPopup(ErrorsList.loadingError);
 
     var errorPopup = main.querySelector('.error');
-    var errorCloseButtons = errorPopup.querySelectorAll('.error__button');
-    var newFileButton = errorPopup.querySelector('.error__button--new-file');
     var tryAgain = errorPopup.querySelector('.error__button--try-again');
 
+    document.removeEventListener('keydown', escClickHandler);
+    form.removeEventListener('focusout', blurHandler);
+
+    errorPopup.addEventListener('click', errorPopupClickHandler);
     document.addEventListener('keydown', errorPopupCloseKey);
-    errorCloseButtons.forEach(function (button) {
-      button.addEventListener('click', errorPopupButtonClickHandler, {once: true});
-    });
-    errorPopup.addEventListener('click', errorPopupOverlayClickHandler);
-    newFileButton.addEventListener('click', newFileButtonClickHandler, {once: true});
+
     tryAgain.focus();
   };
 
@@ -213,8 +232,10 @@
    */
   var plusClickHandler = function () {
     var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
+
     if (defaultValue < IMG_MAX_SIZE) {
       var newValue = defaultValue + IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
+
       pictureScale.setAttribute('value', newValue);
       uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
     }
@@ -226,8 +247,10 @@
    */
   var minusClickHandler = function () {
     var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
+
     if (defaultValue > IMG_MIN_SIZE) {
       var newValue = defaultValue - IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
+
       pictureScale.setAttribute('value', newValue);
       uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
     }
@@ -236,7 +259,7 @@
   /**
    * Слушатель события отправки формы
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var formSubmitHandler = function (evt) {
     window.server.upload(new FormData(form), onLoad, onError);
@@ -246,7 +269,7 @@
   /**
    * Слушатель события на оверлее img-upload__overlay
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var imageUploadOverlayClickHandler = function (evt) {
     if (evt.target.classList.contains('img-upload__overlay')) {
@@ -257,17 +280,117 @@
   /**
    * Удаляет слушатель события закрытия окна по escape
    * @function
+   * @param {event} evt
    */
-  var hashtagFocusHandler = function () {
-    document.removeEventListener('keydown', escClickHandler);
+  var focusHandler = function (evt) {
+    if (evt.target.classList.contains('text__hashtags') || evt.target.classList.contains('text__description')) {
+      document.removeEventListener('keydown', escClickHandler);
+    }
   };
 
   /**
    * Добавляет слушатель события закрытия окна по escape
    * @function
+   * @param {event} evt
    */
-  var hashtagBlurHandler = function () {
+  var blurHandler = function (evt) {
+    if (!evt.target.classList.contains('text__hashtags') || !evt.target.classList.contains('text__description')) {
+      document.addEventListener('keydown', escClickHandler);
+    }
+  };
+
+  /**
+   * Функция удаляет все слушатели событий для формы
+   * @function
+   */
+  var removeHandlers = function () {
+    document.removeEventListener('keydown', escClickHandler);
+
+    plus.removeEventListener('click', plusClickHandler);
+
+    minus.removeEventListener('click', minusClickHandler);
+
+    imageUploadOverlay.removeEventListener('mousedown', imageUploadOverlayClickHandler);
+
+    form.removeEventListener('submit', formSubmitHandler);
+    form.removeEventListener('focusin', focusHandler);
+    form.removeEventListener('focusout', blurHandler);
+
+    hashtagInput.removeEventListener('input', window.hashtagValidation.check);
+
+    effectsList.removeEventListener('click', window.slider.filterClick);
+
+    sliderPin.removeEventListener('mousedown', window.slider.pinClick);
+    sliderPin.removeEventListener('keydown', window.slider.pinKeydown);
+
+    sliderLine.removeEventListener('click', window.slider.lineClick);
+  };
+
+  /**
+   * Функция добавляет слушатели событий для формы
+   * @function
+   */
+  var addHandlers = function () {
     document.addEventListener('keydown', escClickHandler);
+
+    closeButton.addEventListener('click', overlayCloseButtonClickHandler, {once: true});
+
+    plus.addEventListener('click', plusClickHandler);
+
+    minus.addEventListener('click', minusClickHandler);
+
+    imageUploadOverlay.addEventListener('mousedown', imageUploadOverlayClickHandler);
+
+    form.addEventListener('submit', formSubmitHandler);
+    form.addEventListener('focusin', focusHandler);
+    form.addEventListener('focusout', blurHandler);
+
+    hashtagInput.addEventListener('input', window.hashtagValidation.check);
+
+    effectsList.addEventListener('click', window.slider.filterClick);
+
+    sliderPin.addEventListener('mousedown', window.slider.pinClick);
+    sliderPin.addEventListener('keydown', window.slider.pinKeydown);
+
+    sliderLine.addEventListener('click', window.slider.lineClick);
+  };
+
+  /**
+   * Функция удаляет попап с информацией о неверном формате загружаемого файла
+   * @function
+   */
+  var removeFormatErrorPopup = function () {
+    var errorPopup = main.querySelector('.error');
+
+    errorPopup.removeEventListener('click', errorFormatPopupClickHandler);
+    document.removeEventListener('keydown', errorPopupEscKeydownHandler);
+    errorPopup.remove();
+    form.reset();
+    uploadFileField.focus();
+  };
+
+  /**
+   * Слушатель события click на попапе с информацией о неверном формате загружаемого файла
+   * @function
+   * @param {ebent} evt событие
+   */
+  var errorFormatPopupClickHandler = function (evt) {
+    var classList = evt.target.classList;
+
+    if (classList.contains(ErrorPopupClassList.overlay) || classList.contains(ErrorPopupClassList.newFile)) {
+      removeFormatErrorPopup();
+    }
+  };
+
+  /**
+   * Слушатель события keydown на попапе с информацией о неверном формате загружаемого файла
+   * @function
+   * @param {ebent} evt событие
+   */
+  var errorPopupEscKeydownHandler = function (evt) {
+    if (window.buttonCheck.escape(evt)) {
+      removeFormatErrorPopup();
+    }
   };
 
   var form = document.querySelector('#upload-select-image');
@@ -281,50 +404,45 @@
   var plus = imageUploadOverlay.querySelector('.scale__control--bigger');
   var minus = imageUploadOverlay.querySelector('.scale__control--smaller');
   var pictureScale = imageUploadOverlay.querySelector('.scale__control--value');
-  var sliderPin = document.querySelector('.effect-level__pin');
-  var sliderEffectLevelDepth = document.querySelector('.effect-level__depth');
-  var sliderEffect = document.querySelector('.effect-level__value');
+  var sliderContainer = document.querySelector('.effect-level');
+  var sliderPin = sliderContainer.querySelector('.effect-level__pin');
+  var sliderEffectLevelDepth = sliderContainer.querySelector('.effect-level__depth');
+  var sliderEffect = sliderContainer.querySelector('.effect-level__value');
   var hashtagInput = document.querySelector('.text__hashtags');
-  var commentArea = document.querySelector('.text__description');
   var effectsList = document.querySelector('.effects__list');
-  var sliderLine = document.querySelector('.effect-level__line');
+  var sliderLine = sliderContainer.querySelector('.effect-level__line');
 
   uploadFileField.addEventListener('change', function () {
     var file = uploadFileField.files[0];
-    var fileName = file.name.toLowerCase();
-    var matches = IMAGE_TYPES.some(function (type) {
-      return fileName.endsWith(type);
+
+    var matches = IMAGE_MIME_TYPES.some(function (type) {
+      return type === file.type;
     });
 
     if (matches) {
       var reader = new FileReader();
+
       reader.addEventListener('load', function () {
         uploadImage.src = reader.result;
       });
       reader.readAsDataURL(file);
+
+      imageUploadOverlay.classList.remove('hidden');
+      minus.focus();
+      addHandlers();
+    } else {
+      createErrorPopup(ErrorsList.wrongFormat);
+
+      var errorPopup = main.querySelector('.error');
+      var tryAgain = errorPopup.querySelector('.error__button--try-again');
+      var newFile = errorPopup.querySelector('.error__button--new-file');
+
+      tryAgain.classList.add('hidden');
+      newFile.focus();
+
+      errorPopup.addEventListener('click', errorFormatPopupClickHandler);
+      document.addEventListener('keydown', errorPopupEscKeydownHandler);
     }
-
-    imageUploadOverlay.classList.remove('hidden');
-    minus.focus();
-    document.addEventListener('keydown', escClickHandler);
-    closeButton.addEventListener('click', overlayCloseButtonClickHandler, {once: true});
-    plus.addEventListener('click', plusClickHandler);
-    minus.addEventListener('click', minusClickHandler);
-    imageUploadOverlay.addEventListener('mousedown', imageUploadOverlayClickHandler);
-    form.addEventListener('submit', formSubmitHandler);
-
-    hashtagInput.addEventListener('input', window.hashtagValidation.check);
-
-    hashtagInput.addEventListener('focus', hashtagFocusHandler);
-    hashtagInput.addEventListener('blur', hashtagBlurHandler);
-
-    commentArea.addEventListener('focus', hashtagFocusHandler);
-    commentArea.addEventListener('blur', hashtagBlurHandler);
-
-    effectsList.addEventListener('click', window.slider.filterClick);
-    sliderPin.addEventListener('mousedown', window.slider.pinClick);
-    sliderPin.addEventListener('keydown', window.slider.pinKeydown);
-    sliderLine.addEventListener('click', window.slider.lineClick);
   });
 
   window.editingOverlay = {

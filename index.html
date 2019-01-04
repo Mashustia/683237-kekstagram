@@ -34,7 +34,7 @@
 
               <!-- Изначальное состояние поля для загрузки изображения -->
               <fieldset class="img-upload__start">
-                <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" accept="image/jpeg, image/png, image/gif, image/jpg" required>
+                <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" accept="image/jpeg, image/png, image/gif, image/jpg, image/webp" required>
                 <label for="upload-file" class="img-upload__label  img-upload__control">Загрузить</label>
               </fieldset>
 
@@ -57,7 +57,7 @@
 
                     <!-- Изменение глубины эффекта, накладываемого на изображение -->
                     <fieldset class="img-upload__effect-level  effect-level  hidden">
-                      <input class="effect-level__value" type="number" name="effect-level" value="100">
+                      <input class="effect-level__value" type="text" name="effect-level" value="100">
                       <div class="effect-level__line">
                         <div class="effect-level__pin" tabindex="0">Кнопка изменения глубины эффекта фотографии</div>
                         <div class="effect-level__depth">Глубина эффекта фотографии</div>
@@ -205,7 +205,7 @@
   <template id="error">
     <section class="error">
       <div class="error__inner">
-        <h2 class="error__title">Ошибка загрузки файла</h2>
+        <h2 class="error__title"></h2>
         <div class="error__buttons">
           <button type="button" class="error__button error__button--try-again">Попробовать снова</button>
           <button type="button" class="error__button error__button--new-file">Загрузить другой файл</button>

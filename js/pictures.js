@@ -7,8 +7,7 @@
    * @return {ActiveX.IXMLDOMNode | Node} возвращает ноду с разметкой.
    */
   var cloneElement = function (templateElement) {
-    var clone = templateElement.cloneNode(true);
-    return clone;
+    return templateElement.cloneNode(true);
   };
 
   /**
@@ -22,6 +21,7 @@
     clone.querySelector('.picture__img').src = arrayElement.url;
     clone.querySelector('.picture__likes').textContent = arrayElement.likes;
     clone.querySelector('.picture__comments').textContent = arrayElement.comments.length;
+
     return clone;
   };
 
@@ -41,27 +41,29 @@
    * Функция рисует фрагмент в блоке.
    * @function
    * @param {object} place задает куда рисуем.
-   * @param {object} fragmentParameter параметр содержащий фрагмент
+   * @param {object} fragment параметр содержащий фрагмент
    */
-  var drawFragment = function (place, fragmentParameter) {
-    place.appendChild(fragmentParameter);
+  var drawFragment = function (place, fragment) {
+    place.appendChild(fragment);
   };
 
   /**
-   * Функция случайно сортировки массива
+   * Функция случайной сортировки массива
    * @function
    * @param {array} incomingArray массив для сортировки
-   * @return {array}
+   * @return {array} возвращает массив в котором элементы расположены в случайном порядке
    */
   var sortRandom = function (incomingArray) {
-    var j;
+    var randomIndex;
     var temp;
+
     for (var i = incomingArray.length - 1; i > 0; i--) {
-      j = Math.floor(Math.random() * (i + 1));
-      temp = incomingArray[j];
-      incomingArray[j] = incomingArray[i];
+      randomIndex = Math.floor(Math.random() * (i + 1));
+      temp = incomingArray[randomIndex];
+      incomingArray[randomIndex] = incomingArray[i];
       incomingArray[i] = temp;
     }
+
     return incomingArray;
   };
 
@@ -76,13 +78,14 @@
     if (pictureB.comments.length - pictureA.comments.length === 0) {
       return pictureB.likes - pictureA.likes;
     }
+
     return pictureB.comments.length - pictureA.comments.length;
   };
 
   /**
    * Функция добавляет кнопке класс img-filters__button--active
    * @function
-   * @param {evt} evt
+   * @param {event} evt
    */
   var addActiveButtonClass = function (evt) {
     filtersContainer.querySelector('.img-filters__button--active').classList.remove('img-filters__button--active');
@@ -94,7 +97,8 @@
    * @function
    */
   var removeOldPictures = function () {
-    var pictureArray = pictures.querySelectorAll('.picture');
+    var pictureArray = document.querySelectorAll('.picture');
+
     Array.from(pictureArray).forEach(function (picture) {
       picture.remove();
     });
@@ -104,7 +108,7 @@
    * Функция фильтрует изображения согласно входящим параметрам
    * @function
    * @param {array} picturesArray массив с данными о фотографиях, которые необходимо отрисовать
-   * @param {evt} evt событие
+   * @param {event} evt событие
    */
   var filterImage = function (picturesArray, evt) {
     removeOldPictures();
@@ -114,20 +118,11 @@
   };
 
   /**
-   * Функция показывает блок .img-filters после загрузки всех фотографий с сервера.
+   * Функция показывает блок .img-filters
    * @function
-   * @param {array} picturesArray массив с данными о фотографиях с сервера.
    */
-  var checkImageLoading = function (picturesArray) {
-    var counter = 0;
-    Array.from(pictures.querySelectorAll('.picture')).forEach(function (picture) {
-      picture.children[0].onload = function () {
-        counter += 1;
-        if (counter === picturesArray.length) {
-          document.querySelector('.img-filters').classList.remove('img-filters--inactive');
-        }
-      };
-    });
+  var checkImageLoading = function () {
+    document.querySelector('.img-filters').classList.remove('img-filters--inactive');
   };
 
   /**
@@ -136,9 +131,12 @@
    * @param {array} pictureData массив с данными о фотографиях с сервера.
    */
   var successPictureData = function (pictureData) {
+    var popular = filtersContainer.querySelector('#filter-popular');
+    var newPictures = filtersContainer.querySelector('#filter-new');
+    var discussed = filtersContainer.querySelector('#filter-discussed');
+
     writeElements(pictureData, pictureTemplate);
     drawFragment(picturesContainer, fragment);
-    checkImageLoading(pictureData);
 
     popular.addEventListener('click', window.debounce(function (popularClickEvt) {
       filterImage(pictureData, popularClickEvt);
@@ -167,12 +165,9 @@
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
   var picturesContainer = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
+  var filtersContainer = document.querySelector('.img-filters__form');
 
   window.server.load(successPictureData, errorPictureData);
 
-  var filtersContainer = document.querySelector('.img-filters__form');
-  var popular = filtersContainer.querySelector('#filter-popular');
-  var newPictures = filtersContainer.querySelector('#filter-new');
-  var discussed = filtersContainer.querySelector('#filter-discussed');
-  var pictures = document.querySelector('.pictures');
+  window.onload = checkImageLoading;
 })();
