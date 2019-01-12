@@ -50,7 +50,7 @@
    * Функция рассчитывает координаты пина слайдера
    * @function
    * @param {object} startingCoordinate координата пина на нуле.
-   * @param {object} clickPoint задает event.
+   * @param {object} clickPoint точка клика evt.
    * @return {number} возвращает координаты пина от 0 до 100.
    */
   var getPinPoint = function (startingCoordinate, clickPoint) {
@@ -80,21 +80,21 @@
   };
 
   /**
-   * Функция переводит интенсивность фильтра в проценты согласно пропорции.
+   * Функция переводит координаты пина слайдера в проценты согласно пропорции.
    * @function
-   * @param {number} PinPointValue интенсивность фильтра от 0 до 100.
-   * @param {number} filterMaxValue максимальное значение фильтра в единицах.
-   * @return {number} возвращает интенсивность фильтра в прцентах от filterMaxValue.
+   * @param {number} PinPointValue координаты пина слайдера от 0 до 100.
+   * @param {number} filterMaxValue максимальное значение фильтра для кртинки в единицах.
+   * @return {number} возвращает координаты пина слайдера в процентах от filterMaxValue.
    */
   var returnPercent = function (PinPointValue, filterMaxValue) {
     return PinPointValue * (filterMaxValue / PROPORTION_MAX_VALUE);
   };
 
   /**
-   * Функция добавляет объекту image стили
+   * Функция добавляет картинке стили
    * @param {number} PinPointValue координаты пина слайдера
    * @param {object} image картинка, которой добавляются стили
-   * @param {object} filterProperties данные о фильтрах
+   * @param {object} filterProperties данные о фильтре
    */
   var addFilters = function (PinPointValue, image, filterProperties) {
     var filterName = image.className.slice(image.className.indexOf('--') + 2);
@@ -128,20 +128,20 @@
   };
 
   /**
-   * Функция устанавливает объекту положение слева
+   * Функция устанавливает объекту стиль left
    * @function
    * @param {object} tagName - объект, которому нужно добавить style.left
-   * @param {number} styleValue - числовое значение
+   * @param {number} styleValue - числовое значение left
    */
   var setStyleLeft = function (tagName, styleValue) {
     tagName.style.left = styleValue + '%';
   };
 
   /**
-   * Функция устанавливает объекту ширину
+   * Функция устанавливает объекту стиль width
    * @function
    * @param {object} tagName - объект, которому нужно добавить style.width
-   * @param {number} styleValue - числовое значение
+   * @param {number} styleValue - числовое значение width
    */
   var setStyleWidth = function (tagName, styleValue) {
     tagName.style.width = styleValue + '%';
@@ -270,6 +270,7 @@
     filterClick: filterClickHandler,
     pinClick: sliderPinMousedownHandler,
     pinKeydown: sliderPinKeydownHandler,
-    lineClick: sliderLineClickHandler
+    lineClick: sliderLineClickHandler,
+    filter: Filter
   };
 })();

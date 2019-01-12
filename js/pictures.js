@@ -1,70 +1,50 @@
 'use strict';
 (function () {
   /**
-   * Функция генерирует dom-объект.
-   * @function
-   * @param  {object} templateElement темплейт для копирования.
-   * @return {ActiveX.IXMLDOMNode | Node} возвращает ноду с разметкой.
-   */
-  var cloneElement = function (templateElement) {
-    return templateElement.cloneNode(true);
-  };
-
-  /**
    * Функция записывает в объект данные из массива.
    * @function
-   * @param {Node} clone функция с template элементом.
-   * @param {number} arrayElement элемент массива из которого берется информация.
+   * @param {Node} pictureTemplate template для картинки.
+   * @param {number} picture элемент массива из которого берется информация о кратинке.
    * @return {Node} элемент с заполненной разметкой.
    */
-  var createPost = function (clone, arrayElement) {
-    clone.querySelector('.picture__img').src = arrayElement.url;
-    clone.querySelector('.picture__likes').textContent = arrayElement.likes;
-    clone.querySelector('.picture__comments').textContent = arrayElement.comments.length;
+  var fillPicture = function (pictureTemplate, picture) {
+    pictureTemplate.querySelector('.picture__img').src = picture.url;
+    pictureTemplate.querySelector('.picture__likes').textContent = picture.likes;
+    pictureTemplate.querySelector('.picture__comments').textContent = picture.comments.length;
 
-    return clone;
+    return pictureTemplate;
   };
 
   /**
    * Функция записывает элементы в фрагмент.
    * @function
-   * @param {array} userArray массив из которого берется информация.
-   * @param {object} templateElement темплейт для копирования.
+   * @param {array} pictures массив из которого берется информация.
+   * @param {object} pictureTemplate темплейт для picture.
    */
-  var writeElements = function (userArray, templateElement) {
-    userArray.forEach(function (arrayEl) {
-      fragment.appendChild(createPost(cloneElement(templateElement), arrayEl));
+  var writeElements = function (pictures, pictureTemplate) {
+    pictures.forEach(function (picture) {
+      fragment.appendChild(fillPicture(pictureTemplate.cloneNode(true), picture));
     });
-  };
-
-  /**
-   * Функция рисует фрагмент в блоке.
-   * @function
-   * @param {object} place задает куда рисуем.
-   * @param {object} fragment параметр содержащий фрагмент
-   */
-  var drawFragment = function (place, fragment) {
-    place.appendChild(fragment);
   };
 
   /**
    * Функция случайной сортировки массива
    * @function
-   * @param {array} incomingArray массив для сортировки
+   * @param {array} dataArray массив для сортировки
    * @return {array} возвращает массив в котором элементы расположены в случайном порядке
    */
-  var sortRandom = function (incomingArray) {
+  var sortRandom = function (dataArray) {
     var randomIndex;
     var temp;
 
-    for (var i = incomingArray.length - 1; i > 0; i--) {
+    for (var i = dataArray.length - 1; i > 0; i--) {
       randomIndex = Math.floor(Math.random() * (i + 1));
-      temp = incomingArray[randomIndex];
-      incomingArray[randomIndex] = incomingArray[i];
-      incomingArray[i] = temp;
+      temp = dataArray[randomIndex];
+      dataArray[randomIndex] = dataArray[i];
+      dataArray[i] = temp;
     }
 
-    return incomingArray;
+    return dataArray;
   };
 
   /**
@@ -105,16 +85,16 @@
   };
 
   /**
-   * Функция фильтрует изображения согласно входящим параметрам
+   * Функция создает список картинок
    * @function
-   * @param {array} picturesArray массив с данными о фотографиях, которые необходимо отрисовать
-   * @param {event} evt событие
+   * @param {array} pictures массив с данными о фотографиях, которые необходимо отрисовать
+   * @param {event} button активная кнопка
    */
-  var filterImage = function (picturesArray, evt) {
+  var createImages = function (pictures, button) {
     removeOldPictures();
-    writeElements(picturesArray, pictureTemplate);
-    drawFragment(picturesContainer, fragment);
-    addActiveButtonClass(evt);
+    writeElements(pictures, pictureTemplate);
+    picturesContainer.appendChild(fragment);
+    addActiveButtonClass(button);
   };
 
   /**
@@ -128,28 +108,34 @@
   /**
    * Функция выполняется, если данные с сервера получены успешно.
    * @function
-   * @param {array} pictureData массив с данными о фотографиях с сервера.
+   * @param {array} pictures массив с данными о фотографиях с сервера.
    */
-  var successPictureData = function (pictureData) {
+  var successPictures = function (pictures) {
     var popular = filtersContainer.querySelector('#filter-popular');
     var newPictures = filtersContainer.querySelector('#filter-new');
     var discussed = filtersContainer.querySelector('#filter-discussed');
 
-    writeElements(pictureData, pictureTemplate);
-    drawFragment(picturesContainer, fragment);
+    pictureData = pictures;
 
-    popular.addEventListener('click', window.debounce(function (popularClickEvt) {
-      filterImage(pictureData, popularClickEvt);
+    window.pictures = {
+      data: pictureData
+    };
+
+    writeElements(pictures, pictureTemplate);
+    picturesContainer.appendChild(fragment);
+
+    popular.addEventListener('click', window.debounce(function (popularEvt) {
+      createImages(pictures, popularEvt);
     }));
 
-    newPictures.addEventListener('click', window.debounce(function (newClickEvt) {
-      var newPicturesArray = sortRandom(pictureData.slice()).slice(0, 10);
-      filterImage(newPicturesArray, newClickEvt);
+    newPictures.addEventListener('click', window.debounce(function (newEvt) {
+      var newPicturesArray = sortRandom(pictures.slice()).slice(0, 10);
+      createImages(newPicturesArray, newEvt);
     }));
 
-    discussed.addEventListener('click', window.debounce(function (discussedClickEvt) {
-      var discussedArray = pictureData.slice().sort(maxToMin);
-      filterImage(discussedArray, discussedClickEvt);
+    discussed.addEventListener('click', window.debounce(function (discussedEvt) {
+      var discussedArray = pictures.slice().sort(maxToMin);
+      createImages(discussedArray, discussedEvt);
     }));
   };
 
@@ -158,16 +144,21 @@
    * @function
    * @param {string/object} errorMessage
    */
-  var errorPictureData = function (errorMessage) {
-    errorPictureData.error = errorMessage;
+  var errorPictures = function (errorMessage) {
+    errorPictures.error = errorMessage;
   };
 
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
   var picturesContainer = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
   var filtersContainer = document.querySelector('.img-filters__form');
+  var pictureData = {};
 
-  window.server.load(successPictureData, errorPictureData);
+  window.server.load(successPictures, errorPictures);
 
   window.onload = checkImageLoading;
+
+  // window.pictures = {
+  //   data: pictureData
+  // };
 })();

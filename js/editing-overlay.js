@@ -36,8 +36,17 @@
   var clearAttributes = function () {
     pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
 
+    uploadImage.style.filter = null;
+    uploadImage.style.transform = null;
+
+    Array.from(effectsList.querySelectorAll('.effects__radio')).forEach(function (input) {
+      if (input.checked) {
+        uploadImage.classList.remove(window.slider.filter[input.value].class);
+      }
+    });
+
     uploadImage.removeAttribute('class');
-    uploadImage.removeAttribute('style');
+
     uploadImage.src = '';
 
     sliderPin.style.left = PROPORTION_MAX_VALUE + '%';
@@ -56,8 +65,8 @@
     sliderContainer.classList.add('hidden');
 
     removeHandlers();
-    form.reset();
     clearAttributes();
+    form.reset();
   };
 
   /**
@@ -73,10 +82,12 @@
    * @function
    */
   var successPopupRemoveClickHandlers = function () {
+    var successPopup = main.querySelector('.success');
+
     document.removeEventListener('keydown', successPopupCloseKey);
-    main.querySelector('.success__button').removeEventListener('click', successPopupButtonClickHandler);
-    main.querySelector('.success').removeEventListener('click', successPopupOverlayClickHandler);
-    main.querySelector('.success').remove();
+    successPopup.querySelector('.success__button').removeEventListener('click', successPopupButtonClickHandler);
+    successPopup.removeEventListener('click', successPopupOverlayClickHandler);
+    successPopup.remove();
     uploadFileField.focus();
   };
 
@@ -116,15 +127,15 @@
    */
   var popupSucces = function () {
     var successTemplate = document.querySelector('#success').content.querySelector('.success');
-
-    main.appendChild(fragment.appendChild(successTemplate.cloneNode(true)));
-
-    var successPopup = main.querySelector('.success');
+    var successPopup = successTemplate.cloneNode(true);
     var successCloseButton = successPopup.querySelector('.success__button');
+
+    main.appendChild(fragment.appendChild(successPopup));
 
     document.addEventListener('keydown', successPopupCloseKey);
     successCloseButton.addEventListener('click', successPopupButtonClickHandler, {once: true});
     successPopup.addEventListener('click', successPopupOverlayClickHandler);
+
     successCloseButton.focus();
   };
 
@@ -155,10 +166,10 @@
    */
   var createErrorPopup = function (errorMessage) {
     var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-    main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
-
-    var errorPopup = main.querySelector('.error');
+    var errorPopup = errorTemplate.cloneNode(true);
     var title = errorPopup.querySelector('.error__title');
+
+    main.appendChild(fragment.appendChild(errorPopup));
 
     title.textContent = errorMessage;
   };
@@ -176,7 +187,8 @@
     document.addEventListener('keydown', escClickHandler);
     form.addEventListener('focusout', blurHandler);
 
-    main.querySelector('.error').remove();
+    errorPopup.remove();
+
     minus.focus();
   };
 
@@ -223,7 +235,7 @@
    * @return {number}
    */
   var calculateScale = function (valueInPercent) {
-    return valueInPercent.slice(0, -1) / PROPORTION_MAX_VALUE;
+    return valueInPercent / PROPORTION_MAX_VALUE;
   };
 
   /**
@@ -234,9 +246,9 @@
     var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
 
     if (defaultValue < IMG_MAX_SIZE) {
-      var newValue = defaultValue + IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
+      var newValue = defaultValue + IMAGE_SCALE_CHANGE;
 
-      pictureScale.setAttribute('value', newValue);
+      pictureScale.setAttribute('value', newValue + PERCENT_SYMBOL);
       uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
     }
   };
@@ -249,9 +261,9 @@
     var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
 
     if (defaultValue > IMG_MIN_SIZE) {
-      var newValue = defaultValue - IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
+      var newValue = defaultValue - IMAGE_SCALE_CHANGE;
 
-      pictureScale.setAttribute('value', newValue);
+      pictureScale.setAttribute('value', newValue + PERCENT_SYMBOL);
       uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
     }
   };
@@ -364,8 +376,11 @@
 
     errorPopup.removeEventListener('click', errorFormatPopupClickHandler);
     document.removeEventListener('keydown', errorPopupEscKeydownHandler);
+
     errorPopup.remove();
+
     form.reset();
+
     uploadFileField.focus();
   };
 
@@ -430,6 +445,7 @@
       imageUploadOverlay.classList.remove('hidden');
       minus.focus();
       addHandlers();
+
     } else {
       createErrorPopup(ErrorsList.wrongFormat);
 

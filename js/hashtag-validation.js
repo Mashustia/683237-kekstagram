@@ -43,28 +43,28 @@
    * 4) Хештегов не может быть больше пяти
    * 5) Хэштеги разделяются пробелами
    * @function
-   * @param {array} checkedArray проверяемый массив
-   * @param {object} eventAttribute - evt.target
+   * @param {array} hashtags проверяемый массив хэштегов
+   * @param {object} input - evt.target
    */
-  var checkHashtagLength = function (checkedArray, eventAttribute) {
-    checkedArray.forEach(function (hashtag, index) {
+  var checkHashtag = function (hashtags, input) {
+    hashtags.forEach(function (hashtag, index) {
       if (hashtag.charAt(0) !== HASHTAG_SYMBOL) {
-        eventAttribute.setCustomValidity(WarningLists.FIRST_SYMBOL);
+        input.setCustomValidity(WarningLists.FIRST_SYMBOL);
 
       } else if (hashtag.length < MIN_HASHTAG_LENGTH) {
-        eventAttribute.setCustomValidity(WarningLists.MIN_LENGTH);
+        input.setCustomValidity(WarningLists.MIN_LENGTH);
 
       } else if (hashtag.length > MAX_HASHTAG_LENGTH) {
 
         if (hashtag.includes(HASHTAG_SYMBOL, SECOND_SYMBOL)) {
-          eventAttribute.setCustomValidity(WarningLists.SPLIT_SPACE);
+          input.setCustomValidity(WarningLists.SPLIT_SPACE);
 
         } else {
-          eventAttribute.setCustomValidity(WarningLists.MAX_LENGTH);
+          input.setCustomValidity(WarningLists.MAX_LENGTH);
         }
 
       } else if (index > MAX_HASHTAG_COUNT) {
-        eventAttribute.setCustomValidity(WarningLists.QUANTITY_EXCEEDED);
+        input.setCustomValidity(WarningLists.QUANTITY_EXCEEDED);
       }
     });
   };
@@ -72,15 +72,15 @@
   /**
    * Функция проверят, что в массиве нет повторяющихся значений
    * @function
-   * @param {array} checkedArray проверяемый массив
-   * @param {object} eventAttribute - evt.target
+   * @param {array} hashtags проверяемый массив хэштегов
+   * @param {object} input - evt.target
    * @return {boolean} false в случае ошибки в тегах, true, когда теги верны
    */
-  var checkHashtagRepeat = function (checkedArray, eventAttribute) {
-    var uniuniqueHashtagArray = chooseUniqueElements(checkedArray);
+  var checkHashtagRepeat = function (hashtags, input) {
+    var uniuniqueHashtagArray = chooseUniqueElements(hashtags);
 
-    if (uniuniqueHashtagArray.length !== checkedArray.length) {
-      eventAttribute.setCustomValidity(WarningLists.DONT_REPEAT);
+    if (uniuniqueHashtagArray.length !== hashtags.length) {
+      input.setCustomValidity(WarningLists.DONT_REPEAT);
       return false;
     }
 
@@ -90,12 +90,12 @@
   /**
    * Функция создает из входящего масссива другой массив, содержащий только уникальные элементы
    * @function
-   * @param {array} checkedAray массив для проверки на уникальность
+   * @param {array} hashtags массив для проверки на уникальность
    * @return {string[]} возвращает массив уникальных значений
    */
-  var chooseUniqueElements = function (checkedAray) {
+  var chooseUniqueElements = function (hashtags) {
     var obj = {};
-    checkedAray.forEach(function (hashtag) {
+    hashtags.forEach(function (hashtag) {
       var str = hashtag.toLowerCase();
       obj[str] = true;
     });
@@ -114,7 +114,7 @@
     if (hashtagArray !== '') {
       hashtagTarget.setCustomValidity('');
       checkHashtagRepeat(hashtagArray, hashtagTarget);
-      checkHashtagLength(hashtagArray, hashtagTarget);
+      checkHashtag(hashtagArray, hashtagTarget);
     }
   };
 
