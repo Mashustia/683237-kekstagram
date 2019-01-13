@@ -5,7 +5,7 @@
   var GET_DATA_URL = 'https://js.dump.academy/kekstagram/data';
   var HTTP_STATUS_CODE_200 = 200;
   var TIMEOUT = 10000;
-  var RESPONSE_STATUS = 'Статус ответа: ';
+  var RESPONSE_STATUS = 'Ошибка: ';
   var ERROR_MESSAGE = 'Произошла ошибка соединения';
   var ERROR_TIMEOUT = {
     message: 'Запрос не успел выполниться за ',

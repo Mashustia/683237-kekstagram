@@ -1,5 +1,7 @@
 'use strict';
 (function () {
+  var POPUP_MARGIN_RIGHT = 0;
+
   /**
    * Функция записывает в объект данные из массива.
    * @function
@@ -48,7 +50,7 @@
   };
 
   /**
-   * Функция находит числовую разницу между значениями двух объектов
+   * Функция находит сравнивает количество лайков и, если нужно, комментариев у pictureA и pictureB
    * @function
    * @param {object} pictureA
    * @param {object} pictureB
@@ -110,15 +112,13 @@
    * @function
    * @param {array} pictures массив с данными о фотографиях с сервера.
    */
-  var successPictures = function (pictures) {
+  var onLoad = function (pictures) {
     var popular = filtersContainer.querySelector('#filter-popular');
     var newPictures = filtersContainer.querySelector('#filter-new');
     var discussed = filtersContainer.querySelector('#filter-discussed');
 
-    pictureData = pictures;
-
     window.pictures = {
-      data: pictureData
+      data: pictures.slice()
     };
 
     writeElements(pictures, pictureTemplate);
@@ -144,21 +144,24 @@
    * @function
    * @param {string/object} errorMessage
    */
-  var errorPictures = function (errorMessage) {
-    errorPictures.error = errorMessage;
+  var onError = function (errorMessage) {
+    window.editingOverlay.popup(errorMessage, window.editingOverlay.clickHandler, window.editingOverlay.keydownHandler);
+
+    var tryAgain = document.querySelector('.error__button--try-again');
+    var newFile = document.querySelector('.error__button--new-file');
+
+    newFile.classList.add('hidden');
+
+    tryAgain.focus();
+    tryAgain.style.marginRight = POPUP_MARGIN_RIGHT;
   };
 
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
   var picturesContainer = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
   var filtersContainer = document.querySelector('.img-filters__form');
-  var pictureData = {};
 
-  window.server.load(successPictures, errorPictures);
+  window.server.load(onLoad, onError);
 
   window.onload = checkImageLoading;
-
-  // window.pictures = {
-  //   data: pictureData
-  // };
 })();

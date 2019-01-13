@@ -9,7 +9,7 @@
 
   var ErrorsList = {
     wrongFormat: 'Неверный формат файла',
-    loadingError: 'Ошибка загрузки файла'
+    loadingError: 'Ошибка загрузки файла',
   };
 
   var ErrorPopupClassList = {
@@ -125,7 +125,7 @@
    * Функция создает попап при успешной отправке данных
    * @function
    */
-  var popupSucces = function () {
+  var createSuccesPopup = function () {
     var successTemplate = document.querySelector('#success').content.querySelector('.success');
     var successPopup = successTemplate.cloneNode(true);
     var successCloseButton = successPopup.querySelector('.success__button');
@@ -145,7 +145,7 @@
    */
   var onLoad = function () {
     resetForm();
-    popupSucces();
+    createSuccesPopup();
   };
 
   /**
@@ -163,13 +163,21 @@
    * Функция создает попап с информация об ошибке
    * @function
    * @param {object} errorMessage - сообщение об ошибке, которое нужно вывести
+   * @param {function} clickHandler обработчик события click
+   * @param {function} keydownHandler обработчик события keydown
    */
-  var createErrorPopup = function (errorMessage) {
+  var createErrorPopup = function (errorMessage, clickHandler, keydownHandler) {
     var errorTemplate = document.querySelector('#error').content.querySelector('.error');
     var errorPopup = errorTemplate.cloneNode(true);
     var title = errorPopup.querySelector('.error__title');
+    var tryAgain = errorPopup.querySelector('.error__button--try-again');
 
     main.appendChild(fragment.appendChild(errorPopup));
+
+    errorPopup.addEventListener('click', clickHandler);
+    document.addEventListener('keydown', keydownHandler);
+
+    tryAgain.focus();
 
     title.textContent = errorMessage;
   };
@@ -214,18 +222,10 @@
    *  @function
    */
   var onError = function () {
-    createErrorPopup(ErrorsList.loadingError);
-
-    var errorPopup = main.querySelector('.error');
-    var tryAgain = errorPopup.querySelector('.error__button--try-again');
+    createErrorPopup(ErrorsList.loadingError, errorPopupClickHandler, errorPopupCloseKey);
 
     document.removeEventListener('keydown', escClickHandler);
     form.removeEventListener('focusout', blurHandler);
-
-    errorPopup.addEventListener('click', errorPopupClickHandler);
-    document.addEventListener('keydown', errorPopupCloseKey);
-
-    tryAgain.focus();
   };
 
   /**
@@ -388,9 +388,11 @@
 
     errorPopup.remove();
 
-    form.reset();
-
     uploadFileField.focus();
+
+    if (uploadFileField.value) {
+      form.reset();
+    }
   };
 
   /**
@@ -401,7 +403,7 @@
   var errorFormatPopupClickHandler = function (evt) {
     var classList = evt.target.classList;
 
-    if (classList.contains(ErrorPopupClassList.overlay) || classList.contains(ErrorPopupClassList.newFile)) {
+    if (classList.contains(ErrorPopupClassList.overlay) || classList.contains(ErrorPopupClassList.newFile) || classList.contains(ErrorPopupClassList.tryAgain)) {
       removeFormatErrorPopup();
     }
   };
@@ -456,21 +458,20 @@
       addHandlers();
 
     } else {
-      createErrorPopup(ErrorsList.wrongFormat);
+      createErrorPopup(ErrorsList.wrongFormat, errorFormatPopupClickHandler, errorPopupEscKeydownHandler);
 
-      var errorPopup = main.querySelector('.error');
-      var tryAgain = errorPopup.querySelector('.error__button--try-again');
-      var newFile = errorPopup.querySelector('.error__button--new-file');
+      var tryAgain = main.querySelector('.error__button--try-again');
+      var newFile = main.querySelector('.error__button--new-file');
 
       tryAgain.classList.add('hidden');
       newFile.focus();
-
-      errorPopup.addEventListener('click', errorFormatPopupClickHandler);
-      document.addEventListener('keydown', errorPopupEscKeydownHandler);
     }
   });
 
   window.editingOverlay = {
-    esc: escClickHandler
+    esc: escClickHandler,
+    popup: createErrorPopup,
+    clickHandler: errorFormatPopupClickHandler,
+    keydownHandler: errorPopupEscKeydownHandler
   };
 })();

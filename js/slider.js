@@ -107,13 +107,13 @@
    * Функция скрывает слайдер для effects__preview--none.
    * @function
    * @param {object} image картинка, класс которой проверяем.
-   * @param {object} mustBeHidden объект, которому задается класс hidden
+   * @param {object} slider объект, которому задается класс hidden
    */
-  var hideSlider = function (image, mustBeHidden) {
+  var hideSlider = function (image, slider) {
     if (image.classList.contains(Filter['none'].class)) {
-      mustBeHidden.classList.add('hidden');
+      slider.classList.add('hidden');
     } else {
-      mustBeHidden.classList.remove('hidden');
+      slider.classList.remove('hidden');
     }
   };
 
