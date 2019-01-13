@@ -229,43 +229,52 @@
   };
 
   /**
-   * Функция переводит масштаб картинки из процентов в единицы
+   * Функция применяет параметр масштаба к img
    * @function
-   * @param {number} valueInPercent масштаб картинки в процентах
-   * @return {number}
+   * @param {number} imgScale масштаб img
    */
-  var calculateScale = function (valueInPercent) {
-    return valueInPercent / PROPORTION_MAX_VALUE;
+  var applyImgScale = function (imgScale) {
+    pictureScale.setAttribute('value', imgScale + PERCENT_SYMBOL);
+
+    uploadImage.style.transform = 'scale(' + (imgScale / PROPORTION_MAX_VALUE) + ')';
+  };
+
+  /**
+   * Функция меняет масштаб img
+   * @function
+   * @param {event} evt
+   */
+  var changeImgSize = function (evt) {
+    var defaultImgScale = parseInt(pictureScale.value.slice(0, -1), 10);
+    var content = window.getComputedStyle(evt.target, ':before').content;
+    var newImgScale = defaultImgScale;
+
+    if (content.includes('+') && defaultImgScale < IMG_MAX_SIZE) {
+      newImgScale += IMAGE_SCALE_CHANGE;
+
+    } else if (content.includes('–') && defaultImgScale > IMG_MIN_SIZE) {
+      newImgScale -= IMAGE_SCALE_CHANGE;
+    }
+
+    applyImgScale(newImgScale);
   };
 
   /**
    * Слушатель событий для кнопки увеличения изображения
    * @function
+   * @param {event} evt
    */
-  var plusClickHandler = function () {
-    var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
-
-    if (defaultValue < IMG_MAX_SIZE) {
-      var newValue = defaultValue + IMAGE_SCALE_CHANGE;
-
-      pictureScale.setAttribute('value', newValue + PERCENT_SYMBOL);
-      uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
-    }
+  var plusClickHandler = function (evt) {
+    changeImgSize(evt);
   };
 
   /**
    * Слушатель событий для кнопки уменьшения изображения
    * @function
+   * @param {event} evt
    */
-  var minusClickHandler = function () {
-    var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
-
-    if (defaultValue > IMG_MIN_SIZE) {
-      var newValue = defaultValue - IMAGE_SCALE_CHANGE;
-
-      pictureScale.setAttribute('value', newValue + PERCENT_SYMBOL);
-      uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
-    }
+  var minusClickHandler = function (evt) {
+    changeImgSize(evt);
   };
 
   /**
