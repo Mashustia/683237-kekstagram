@@ -1,7 +1,7 @@
 'use strict';
 (function () {
-  var DEFAULT_COMMENTS_VALUE = '5';
-  var NEXT_COMMENT_VALUE = '5';
+  var DEFAULT_COMMENTS_VALUE = 5;
+  var NEXT_COMMENT_VALUE = 5;
 
   /**
    * Функция создает обработчик событий для клавиши escape.
@@ -17,94 +17,87 @@
   /**
    * Функция для заполнения big-picture.
    * @function
-   * @param {array} userArray  массив из которого берется информация.
-   * @param {object} placeToRender поля для вставки даных
+   * @param {array} picture объект, из которого берутся данные.
    */
-  var renderBigPicture = function (userArray, placeToRender) {
-    placeToRender.querySelector('.big-picture__img').querySelector('img').src = userArray.url;
-    placeToRender.querySelector('.likes-count').textContent = userArray.likes;
-    placeToRender.querySelector('.comments-count').textContent = userArray.comments.length;
-    placeToRender.querySelector('.social__caption').textContent = userArray.description;
+  var renderBigPicture = function (picture) {
+    image.src = picture.url;
+    likes.textContent = picture.likes;
+    commentsCount.textContent = picture.comments.length;
+    imageCaption.textContent = picture.description;
 
-    if (userArray.comments.length < DEFAULT_COMMENTS_VALUE) {
-      placeToRender.querySelector('.comments-count--shown').textContent = userArray.comments.length;
+    if (picture.comments.length < DEFAULT_COMMENTS_VALUE) {
+      shownComments.textContent = picture.comments.length;
     } else {
-      placeToRender.querySelector('.comments-count--shown').textContent = DEFAULT_COMMENTS_VALUE;
+      shownComments.textContent = DEFAULT_COMMENTS_VALUE;
     }
   };
 
   /**
    * Функция создает комментарии
    * @function
-   * @param {array} arrayObject - объект массива
-   * @param {object} templateElement
+   * @param {array} picture - объект массива
+   * @param {object} template
    */
-  var renderComment = function (arrayObject, templateElement) {
-    arrayObject.comments.forEach(function (comment) {
-      var commentItem = templateElement.cloneNode(true);
+  var renderComment = function (picture, template) {
+    picture.comments.forEach(function (comment) {
+      var commentItem = template.cloneNode(true);
 
       commentItem.querySelector('.social__picture').src = comment.avatar;
       commentItem.querySelector('.social__text').textContent = comment.message;
+
       fragment.appendChild(commentItem);
     });
   };
 
   /**
-   * Функция возвращает из входящего массива элемент, у которого id совпадает с id evt елемента
-   * @param {array} dataArray массив с элементами
-   * @param {object} eventAttribute evt
-   * @return {object} элемент входящего массива, у которого id совпадает с id evt елемента
+   * Функция возвращает из массива pictures элемент, у которого url совпадает с url evt елемента
+   * @param {array} pictures массив с элементами
+   * @param {object} pictureUrl evt
+   * @return {object} элемент массива pictures, у которого url совпадает с url evt елемента
    */
-  var getCurrentObject = function (dataArray, eventAttribute) {
-    var currentObject = dataArray.filter(function (arrayItem) {
-      return arrayItem.url === eventAttribute;
+  var getCurrentPicture = function (pictures, pictureUrl) {
+    var currentObject = pictures.find(function (picture) {
+      return picture.url === pictureUrl;
     });
+
     return currentObject;
   };
 
   /**
    * Функция заполняет поля элемента big-picture.
-   * @param {event} currentObject - входящий объект с данными
+   * @param {event} currentPicture - выбранный элемент массива pictures
    */
-  var fillBigPicture = function (currentObject) {
+  var fillBigPicture = function (currentPicture) {
+    if (!currentPicture) {
+      return;
+    }
+
     bigPicture.classList.remove('hidden');
     body.classList.add('modal-open');
-    document.addEventListener('keydown', bigPictureEscKeydownHandler);
-    renderBigPicture(currentObject[0], bigPicture);
-    renderComment(currentObject[0], commentTemplate);
+
+    renderBigPicture(currentPicture);
+    renderComment(currentPicture, commentTemplate);
+
     commentsList.innerHTML = '';
+
     commentsList.appendChild(fragment);
+
+    hideComments();
+
     likes.focus();
-    bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonClickHandler);
+
+    document.addEventListener('keydown', bigPictureEscKeydownHandler);
+
+    closeButton.addEventListener('click', closeButtonClickHandler);
     bigPicture.addEventListener('click', bigPictureOverlayClickHandler);
     commentsLoader.addEventListener('click', commentsLoaderClickHandler);
-    hideComments();
-  };
-
-  /**
-   * Функция выполняется в случае успешной загрузки данных с сервера
-   * @function
-   * @param {array} pictureData
-   */
-  var onLoad = function (pictureData) {
-    pictureDataList = pictureData;
-  };
-
-  /**
-   * Функция выполняется в случае ошибки загрузки данных с сервера
-   * @function
-   * @param {string/object} errorMessage
-   * @return {boolean} true/false
-   */
-  var onError = function (errorMessage) {
-    return !errorMessage;
   };
 
   /**
    * Слушатель события click на кнопке закрытия big-picture
    * @function
    */
-  var bigPictureCloseButtonClickHandler = function () {
+  var closeButtonClickHandler = function () {
     removeBigPictureClickHandlers();
   };
 
@@ -127,11 +120,13 @@
     bigPicture.classList.add('hidden');
     commentsLoader.classList.remove('hidden');
     body.removeAttribute('class');
+
     document.removeEventListener('keydown', bigPictureEscKeydownHandler);
     bigPicture.removeEventListener('click', bigPictureOverlayClickHandler);
     commentsLoader.removeEventListener('click', commentsLoaderClickHandler);
-    bigPictureCloseButton.removeEventListener('click', bigPictureCloseButtonClickHandler);
-    currentPicture.focus();
+    closeButton.removeEventListener('click', closeButtonClickHandler);
+
+    activePicture.focus();
   };
 
   /**
@@ -141,7 +136,7 @@
   var loadComments = function () {
     var comments = bigPicture.querySelectorAll('.social__comment');
     var commentsShown = bigPicture.querySelector('.comments-count--shown');
-    var count = parseInt(commentsShown.textContent, 10) + parseInt(NEXT_COMMENT_VALUE, 10);
+    var count = parseInt(commentsShown.textContent, 10) + NEXT_COMMENT_VALUE;
 
     if (count >= comments.length) {
       count = comments.length;
@@ -180,32 +175,37 @@
   };
 
   var bigPicture = document.querySelector('.big-picture');
-  var bigPictureCloseButton = bigPicture.querySelector('.big-picture__cancel');
+  var image = bigPicture.querySelector('.big-picture__img img');
+  var likes = bigPicture.querySelector('.likes-count');
+  var commentsCount = bigPicture.querySelector('.comments-count');
+  var imageCaption = bigPicture.querySelector('.social__caption');
+  var shownComments = bigPicture.querySelector('.comments-count--shown');
+  var closeButton = bigPicture.querySelector('.big-picture__cancel');
   var commentsList = bigPicture.querySelector('.social__comments');
   var commentsLoader = bigPicture.querySelector('.comments-loader');
   var fragment = document.createDocumentFragment();
   var picturesContainer = document.querySelector('.pictures');
   var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
-  var pictureDataList = {};
   var body = document.querySelector('body');
-  var likes = bigPicture.querySelector('.likes-count');
-  var currentPicture = {};
-
-  window.server.load(onLoad, onError);
+  var activePicture = {};
 
   picturesContainer.addEventListener('click', function (evt) {
     if (evt.target.classList.contains('picture__img')) {
-      var currentObject = getCurrentObject(pictureDataList, evt.target.attributes.src.nodeValue);
-      fillBigPicture(currentObject);
-      currentPicture = evt.target.parentNode;
+      var currentPicture = getCurrentPicture(window.pictures.data, evt.target.attributes.src.nodeValue);
+
+      fillBigPicture(currentPicture);
+
+      activePicture = evt.target.parentNode;
     }
   });
 
   picturesContainer.addEventListener('keydown', function (evt) {
     if (evt.target.classList.contains('picture') && window.buttonCheck.enter(evt)) {
-      var currentObject = getCurrentObject(pictureDataList, evt.target.children[0].attributes.src.nodeValue);
-      fillBigPicture(currentObject);
-      currentPicture = evt.target;
+      var currentPicture = getCurrentPicture(window.pictures.data, evt.target.children[0].attributes.src.nodeValue);
+
+      fillBigPicture(currentPicture);
+
+      activePicture = evt.target;
     }
   });
 })();

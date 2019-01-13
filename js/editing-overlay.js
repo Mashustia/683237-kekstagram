@@ -9,7 +9,7 @@
 
   var ErrorsList = {
     wrongFormat: 'Неверный формат файла',
-    loadingError: 'Ошибка загрузки файла'
+    loadingError: 'Ошибка загрузки файла',
   };
 
   var ErrorPopupClassList = {
@@ -36,8 +36,17 @@
   var clearAttributes = function () {
     pictureScale.setAttribute('value', IMG_MAX_SIZE + PERCENT_SYMBOL);
 
+    uploadImage.style.filter = null;
+    uploadImage.style.transform = null;
+
+    Array.from(effectsList.querySelectorAll('.effects__radio')).forEach(function (input) {
+      if (input.checked) {
+        uploadImage.classList.remove(window.slider.filter[input.value].class);
+      }
+    });
+
     uploadImage.removeAttribute('class');
-    uploadImage.removeAttribute('style');
+
     uploadImage.src = '';
 
     sliderPin.style.left = PROPORTION_MAX_VALUE + '%';
@@ -56,8 +65,8 @@
     sliderContainer.classList.add('hidden');
 
     removeHandlers();
-    form.reset();
     clearAttributes();
+    form.reset();
   };
 
   /**
@@ -73,10 +82,12 @@
    * @function
    */
   var successPopupRemoveClickHandlers = function () {
+    var successPopup = main.querySelector('.success');
+
     document.removeEventListener('keydown', successPopupCloseKey);
-    main.querySelector('.success__button').removeEventListener('click', successPopupButtonClickHandler);
-    main.querySelector('.success').removeEventListener('click', successPopupOverlayClickHandler);
-    main.querySelector('.success').remove();
+    successPopup.querySelector('.success__button').removeEventListener('click', successPopupButtonClickHandler);
+    successPopup.removeEventListener('click', successPopupOverlayClickHandler);
+    successPopup.remove();
     uploadFileField.focus();
   };
 
@@ -114,17 +125,17 @@
    * Функция создает попап при успешной отправке данных
    * @function
    */
-  var popupSucces = function () {
+  var createSuccesPopup = function () {
     var successTemplate = document.querySelector('#success').content.querySelector('.success');
-
-    main.appendChild(fragment.appendChild(successTemplate.cloneNode(true)));
-
-    var successPopup = main.querySelector('.success');
+    var successPopup = successTemplate.cloneNode(true);
     var successCloseButton = successPopup.querySelector('.success__button');
+
+    main.appendChild(fragment.appendChild(successPopup));
 
     document.addEventListener('keydown', successPopupCloseKey);
     successCloseButton.addEventListener('click', successPopupButtonClickHandler, {once: true});
     successPopup.addEventListener('click', successPopupOverlayClickHandler);
+
     successCloseButton.focus();
   };
 
@@ -134,7 +145,7 @@
    */
   var onLoad = function () {
     resetForm();
-    popupSucces();
+    createSuccesPopup();
   };
 
   /**
@@ -152,13 +163,21 @@
    * Функция создает попап с информация об ошибке
    * @function
    * @param {object} errorMessage - сообщение об ошибке, которое нужно вывести
+   * @param {function} clickHandler обработчик события click
+   * @param {function} keydownHandler обработчик события keydown
    */
-  var createErrorPopup = function (errorMessage) {
+  var createErrorPopup = function (errorMessage, clickHandler, keydownHandler) {
     var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-    main.appendChild(fragment.appendChild(errorTemplate.cloneNode(true)));
-
-    var errorPopup = main.querySelector('.error');
+    var errorPopup = errorTemplate.cloneNode(true);
     var title = errorPopup.querySelector('.error__title');
+    var tryAgain = errorPopup.querySelector('.error__button--try-again');
+
+    main.appendChild(fragment.appendChild(errorPopup));
+
+    errorPopup.addEventListener('click', clickHandler);
+    document.addEventListener('keydown', keydownHandler);
+
+    tryAgain.focus();
 
     title.textContent = errorMessage;
   };
@@ -176,7 +195,8 @@
     document.addEventListener('keydown', escClickHandler);
     form.addEventListener('focusout', blurHandler);
 
-    main.querySelector('.error').remove();
+    errorPopup.remove();
+
     minus.focus();
   };
 
@@ -202,58 +222,59 @@
    *  @function
    */
   var onError = function () {
-    createErrorPopup(ErrorsList.loadingError);
-
-    var errorPopup = main.querySelector('.error');
-    var tryAgain = errorPopup.querySelector('.error__button--try-again');
+    createErrorPopup(ErrorsList.loadingError, errorPopupClickHandler, errorPopupCloseKey);
 
     document.removeEventListener('keydown', escClickHandler);
     form.removeEventListener('focusout', blurHandler);
-
-    errorPopup.addEventListener('click', errorPopupClickHandler);
-    document.addEventListener('keydown', errorPopupCloseKey);
-
-    tryAgain.focus();
   };
 
   /**
-   * Функция переводит масштаб картинки из процентов в единицы
+   * Функция применяет параметр масштаба к img
    * @function
-   * @param {number} valueInPercent масштаб картинки в процентах
-   * @return {number}
+   * @param {number} imgScale масштаб img
    */
-  var calculateScale = function (valueInPercent) {
-    return valueInPercent.slice(0, -1) / PROPORTION_MAX_VALUE;
+  var applyImgScale = function (imgScale) {
+    pictureScale.setAttribute('value', imgScale + PERCENT_SYMBOL);
+
+    uploadImage.style.transform = 'scale(' + (imgScale / PROPORTION_MAX_VALUE) + ')';
+  };
+
+  /**
+   * Функция меняет масштаб img
+   * @function
+   * @param {event} evt
+   */
+  var changeImgSize = function (evt) {
+    var defaultImgScale = parseInt(pictureScale.value.slice(0, -1), 10);
+    var content = window.getComputedStyle(evt.target, ':before').content;
+    var newImgScale = defaultImgScale;
+
+    if (content.includes('+') && defaultImgScale < IMG_MAX_SIZE) {
+      newImgScale += IMAGE_SCALE_CHANGE;
+
+    } else if (content.includes('–') && defaultImgScale > IMG_MIN_SIZE) {
+      newImgScale -= IMAGE_SCALE_CHANGE;
+    }
+
+    applyImgScale(newImgScale);
   };
 
   /**
    * Слушатель событий для кнопки увеличения изображения
    * @function
+   * @param {event} evt
    */
-  var plusClickHandler = function () {
-    var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
-
-    if (defaultValue < IMG_MAX_SIZE) {
-      var newValue = defaultValue + IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
-
-      pictureScale.setAttribute('value', newValue);
-      uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
-    }
+  var plusClickHandler = function (evt) {
+    changeImgSize(evt);
   };
 
   /**
    * Слушатель событий для кнопки уменьшения изображения
    * @function
+   * @param {event} evt
    */
-  var minusClickHandler = function () {
-    var defaultValue = parseInt(pictureScale.value.slice(0, -1), 10);
-
-    if (defaultValue > IMG_MIN_SIZE) {
-      var newValue = defaultValue - IMAGE_SCALE_CHANGE + PERCENT_SYMBOL;
-
-      pictureScale.setAttribute('value', newValue);
-      uploadImage.style.transform = 'scale(' + calculateScale(newValue) + ')';
-    }
+  var minusClickHandler = function (evt) {
+    changeImgSize(evt);
   };
 
   /**
@@ -364,9 +385,14 @@
 
     errorPopup.removeEventListener('click', errorFormatPopupClickHandler);
     document.removeEventListener('keydown', errorPopupEscKeydownHandler);
+
     errorPopup.remove();
-    form.reset();
+
     uploadFileField.focus();
+
+    if (uploadFileField.value) {
+      form.reset();
+    }
   };
 
   /**
@@ -377,7 +403,7 @@
   var errorFormatPopupClickHandler = function (evt) {
     var classList = evt.target.classList;
 
-    if (classList.contains(ErrorPopupClassList.overlay) || classList.contains(ErrorPopupClassList.newFile)) {
+    if (classList.contains(ErrorPopupClassList.overlay) || classList.contains(ErrorPopupClassList.newFile) || classList.contains(ErrorPopupClassList.tryAgain)) {
       removeFormatErrorPopup();
     }
   };
@@ -430,22 +456,22 @@
       imageUploadOverlay.classList.remove('hidden');
       minus.focus();
       addHandlers();
-    } else {
-      createErrorPopup(ErrorsList.wrongFormat);
 
-      var errorPopup = main.querySelector('.error');
-      var tryAgain = errorPopup.querySelector('.error__button--try-again');
-      var newFile = errorPopup.querySelector('.error__button--new-file');
+    } else {
+      createErrorPopup(ErrorsList.wrongFormat, errorFormatPopupClickHandler, errorPopupEscKeydownHandler);
+
+      var tryAgain = main.querySelector('.error__button--try-again');
+      var newFile = main.querySelector('.error__button--new-file');
 
       tryAgain.classList.add('hidden');
       newFile.focus();
-
-      errorPopup.addEventListener('click', errorFormatPopupClickHandler);
-      document.addEventListener('keydown', errorPopupEscKeydownHandler);
     }
   });
 
   window.editingOverlay = {
-    esc: escClickHandler
+    esc: escClickHandler,
+    popup: createErrorPopup,
+    clickHandler: errorFormatPopupClickHandler,
+    keydownHandler: errorPopupEscKeydownHandler
   };
 })();
